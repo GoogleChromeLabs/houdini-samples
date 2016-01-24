@@ -14,53 +14,56 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<style>
-  * {
-    box-sizing: border-box;
-  }
-  html, body {
-    margin: 0;
-    border: 0;
-    padding: 0;
-    background-color: black;
-    position: relative;
-    z-index: -2;
-    overflow: hidden;
-    font-family: sans-serif;
-  }
-  .scroll {
-    margin: 0 auto;
-    padding: 20px;
-    max-width: 720px;
-    width: 100%;
-    height: 100vh;
-    overflow: scroll;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.8);
-    scroll-behavior: smooth;
-  }
-  .parallax {
-    background-image: url('pic.jpg');
-    background-size: cover;
-    background-position: 50% 50%;
-    width: 100vw;
-    height: 250vh;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-  }
-  #options {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    background-color: white;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-  }
-</style>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      border: 0;
+      padding: 0;
+      background-color: black;
+      position: relative;
+      z-index: -2;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    .scroll {
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 720px;
+      width: 100%;
+      height: 100vh;
+      overflow: scroll;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.8);
+      scroll-behavior: smooth;
+    }
+    .parallax {
+      background-image: url('pic.jpg');
+      background-size: cover;
+      background-position: 50% 50%;
+      width: 100vw;
+      height: 250vh;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+    #options {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      background-color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
 <div class="parallax"></div>
 <!--
   We are scrolling inside a div because compositor worklets don’t work with
