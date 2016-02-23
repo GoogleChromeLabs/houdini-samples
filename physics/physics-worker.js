@@ -249,7 +249,6 @@ limitations under the License.
 
   scope.tick = function(timestamp) {
     var dt = 1.0;
-    console.log("tick: " + timestamp);
     if (scope.lastTimestamp) {
       dt = (timestamp - scope.lastTimestamp) * 60;
     }
