@@ -17,6 +17,7 @@ limitations under the License.
 (function(scope) {
   "use strict";
 
+  var lastTimestamp;
   var spheres = [];
   var foils = [];
   var gravity = 0.022;
@@ -247,31 +248,32 @@ limitations under the License.
     }
   }
 
-  scope.tick = function(timestamp) {
+  var initialized = false;
+  
+  function PhysicsWorker() {
+  }
+  
+  PhysicsWorker.prototype.onmessage = function(e) {
+    initialized = true;
+    spheres = e.data.spheres;
+    foils = e.data.foils;
+    viewportHeight = e.data.viewportHeight;
+  };
+  
+  PhysicsWorker.prototype.tick = function(timestamp) {
+    if (!initialized) return;
     var dt = 1.0;
-    if (scope.lastTimestamp) {
-      dt = (timestamp - scope.lastTimestamp) * 60;
+    if (lastTimestamp) {
+      dt = (timestamp - lastTimestamp) * 60;
     }
-    scope.lastTimestamp = timestamp;
+    lastTimestamp = timestamp;
 
     updatePositions(dt);
     processCollisions();
     updatePositions(dt);
     applyGravity(dt);
     resetSpheres();
-
-    scope.requestAnimationFrame(tick);
-  }
-
-
-  scope.initWorker = function() {
-    self.onmessage = function(e) {
-      spheres = e.data.spheres;
-      foils = e.data.foils;
-      viewportHeight = e.data.viewportHeight;
-      requestAnimationFrame(tick);
-    }
   };
 
-  initWorker();
+  registerCompositorAnimator('physics', PhysicsWorker);
 })(self);

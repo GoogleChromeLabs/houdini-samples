@@ -55,8 +55,10 @@ if (flagIsSet('noworklet')) {
   };
 } else {
   console.log('Using compositor worklet rAF');
-  var worklet = new CompositorWorker('compworklet.js');
-  var scrollerProxy = new CompositorProxy(self.scroller, ['scrollTop']);
-  var parallaxProxy = new CompositorProxy(self.parallax, ['transform']);
-  worklet.postMessage([scrollerProxy, parallaxProxy]);
+  window.compositorWorklet.import('compworklet.js').then(function() {
+    var worklet = new CompositorAnimator('parallax');
+    var scrollerProxy = new CompositorProxy(self.scroller, ['scrollTop']);
+    var parallaxProxy = new CompositorProxy(self.parallax, ['transform']);
+    worklet.postMessage([scrollerProxy, parallaxProxy]);
+  });
 }

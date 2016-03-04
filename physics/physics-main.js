@@ -221,7 +221,6 @@ limitations under the License.
 
   scope.initMain = function() {
     setupScene();
-    scope.worker = new CompositorWorker("physics-worker.js");
 
     var message = {
       'spheres': [],
@@ -263,7 +262,11 @@ limitations under the License.
       message.foils.push(foilProxy);
     }
 
-    worker.postMessage(message);
+    window.compositorWorklet.import('physics-worker.js').then(function() {
+      scope.worker = new CompositorAnimator('physics');
+      scope.worker.postMessage(message);
+    });
+
     requestAnimationFrame(tick);
   };
 
