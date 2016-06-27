@@ -1,0 +1,66 @@
+<!doctype html>
+
+<!--
+Copyright 2016 Google, Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<button id="ripple">
+  Click me!
+</button>
+
+<style>
+#ripple {
+  width: 300px;
+  height: 300px;
+  border-radius: 150px;
+  font-size: 5em;
+  background-color: rgb(255,64,129);
+  border: 0;
+  box-shadow: 0 1px 1.5px 0 rgba(0,0,0,.12),0 1px 1px 0 rgba(0,0,0,.24);
+  color: white;
+
+  --ripple-x: 0;
+  --ripple-y: 0;
+  --ripple-color: rgba(255,255,255,0.54);
+  --animation-tick: 0;
+}
+#ripple:focus {
+  outline: none;
+}
+#ripple.animating {
+  background-image: paint(ripple);
+}
+</style>
+
+<script>
+window.paintWorklet.import('paintworklet.js');
+const button = document.querySelector('#ripple');
+let start = performance.now();
+let x, y;
+document.querySelector('#ripple').addEventListener('click', evt => {
+  button.classList.add('animating');
+  [x, y] = [evt.clientX, evt.clientY];
+  start = performance.now();
+  requestAnimationFrame(function raf(now) {
+    const count = Math.floor(now - start);
+    button.style.cssText = `--ripple-x: ${x}; --ripple-y: ${y}; --animation-tick: ${count};`;
+    if(count > 1000) {
+      button.classList.remove('animating');
+      button.style.cssText = `--animation-tick: 0`;
+      return;
+    }
+    requestAnimationFrame(raf);
+  })
+})
+</script>
