@@ -18,7 +18,7 @@ registerPaint('circle', class {
     static get inputProperties() { return ['--circle-color']; }
     paint(ctx, geom, properties) {
         // Change the fill color.
-        const color = properties.get('--circle-color').cssString;
+        const color = properties.get('--circle-color').cssText;
         ctx.fillStyle = color;
 
         // Determine the center point and radius.
