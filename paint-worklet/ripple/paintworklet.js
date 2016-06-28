@@ -17,11 +17,11 @@ limitations under the License.
 registerPaint('ripple', class {
     static get inputProperties() { return ['background-color', '--ripple-color', '--animation-tick', '--ripple-x', '--ripple-y']; }
     paint(ctx, geom, properties) {
-      const bgColor = properties.get('background-color').cssString;
-      const rippleColor = properties.get('--ripple-color').cssString;
-      const x = parseFloat(properties.get('--ripple-x').cssString);
-      const y = parseFloat(properties.get('--ripple-y').cssString);
-      let tick = parseFloat(properties.get('--animation-tick').cssString);
+      const bgColor = properties.get('background-color').cssText;
+      const rippleColor = properties.get('--ripple-color').cssText;
+      const x = parseFloat(properties.get('--ripple-x').cssText);
+      const y = parseFloat(properties.get('--ripple-y').cssText);
+      let tick = parseFloat(properties.get('--animation-tick').cssText);
       if(tick < 0)
         tick = 0;
       if(tick > 1000)
