@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<!--
+/*
 Copyright 2016 Google, Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +12,17 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
--->
-<head>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" type="text/css" href="theme.css">
-</head>
-<div class="container">
-<div id="logo" class="logo">rAF</div>
-<a id="startJank" class="button">Add main thread jank.</a>
-<a id="stopJank" class="button">Janking (click to stop).</a>
-</div>
-<script src="../cw-polyfill.js"></script>
-<script src="physics-main.js" type="text/javascript"></script>
+*/
+registerAnimator('parallax', class ParallaxAnimator {
+  static get outputProperties() { return ['transform']; }
+  static get rootInputScroll() { return true; }
+
+  animate(root, children, timeline) {
+    children.forEach(elem => {
+      var t = elem.styleMap.transform;
+      t.m42 = -0.1 * root.scrollOffsets.top;
+      elem.styleMap.transform = t;
+    });
+  }
+
+});
