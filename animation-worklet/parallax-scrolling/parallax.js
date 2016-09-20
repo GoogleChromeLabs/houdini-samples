@@ -55,5 +55,5 @@ if (flagIsSet('noworklet')) {
   };
 } else {
   console.log('Using compositor worklet rAF');
-  window.polyfillAnimationWorklet.import('compworklet.js');
+  window.polyfillAnimationWorklet.import('parallax-animator.js');
 }

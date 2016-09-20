@@ -26,14 +26,23 @@ limitations under the License.
     }
 
     get top() { return this.proxy_.scrollTop; }
+    set top(s) { this.proxy_.scrollTop = s;}
     get left() { return this.proxy_.scrollLeft; }
+    set left(s) { this.proxy_.scrollLeft = s;}
+
   };
 
   class ProxyElementWrapper {
     constructor(desc) {
+      this.proxy_ = desc.proxy;
       this.scrollOffsets = new ScrollOffsetsWrapper(desc.proxy);
       this.styleMap = new StyleMapWrapper(desc);
     }
+
+    get ready_() {
+      return !this.proxy_ || this.proxy_.initialized;
+    }
+
   };
 
   class StyleMapWrapper {
@@ -110,16 +119,11 @@ limitations under the License.
     for (var animator in animators) {
       for (var i = 0; i < animators[animator].length; i++) {
         var desc = animators[animator][i];
-        if (desc.root.proxy && !desc.root.proxy.initialized)
-          continue;
-        var childrenInitialized = true;
-        for (var j = 0; j < desc.children.length; j++) {
-          if (desc.children[j].proxy && !desc.children[j].proxy.initialized) {
-            childrenInitialized = false;
-            break;
-          }
-        }
-        if (!childrenInitialized)
+        var ready = [desc.root].concat(desc.children)
+          .map(function(e) { return e.ready_; })
+          .reduce(function(prev, curr) { return prev && curr; }, true);
+
+        if (!ready)
           continue;
         try {
           desc.animator.animate(desc.root, desc.children, timeline);
