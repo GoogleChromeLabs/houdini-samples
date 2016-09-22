@@ -103,7 +103,7 @@ limitations under the License.
         for (var i = 0; i < data.elements[animator].length; i++) {
           var animatorDesc = animators[animator][i] = {'animator': new animatorCtors[animator]()}
           var elemDesc = data.elements[animator][i];
-          animatorDesc.root = new ProxyElementWrapper(elemDesc.root);
+          animatorDesc.root = elemDesc.root ? new ProxyElementWrapper(elemDesc.root) : null;
           animatorDesc.children = [];
           for (var j = 0; j < elemDesc.children.length; j++) {
             animatorDesc.children.push(new ProxyElementWrapper(elemDesc.children[j]));
@@ -119,7 +119,10 @@ limitations under the License.
     for (var animator in animators) {
       for (var i = 0; i < animators[animator].length; i++) {
         var desc = animators[animator][i];
-        var ready = [desc.root].concat(desc.children)
+        var proxied = desc.children;
+        if (desc.root)
+          proxied.push(desc.root);
+        var ready = proxied
           .map(function(e) { return e.ready_; })
           .reduce(function(prev, curr) { return prev && curr; }, true);
 

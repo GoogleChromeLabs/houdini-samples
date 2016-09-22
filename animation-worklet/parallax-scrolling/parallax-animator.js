@@ -15,12 +15,14 @@ limitations under the License.
 */
 registerAnimator('parallax', class ParallaxAnimator {
   static get outputProperties() { return ['transform']; }
-  static get rootInputScroll() { return true; }
+  static get inputProperties() { return ['--part']; }
+  static get inputScroll() { return true; }
 
   animate(root, children, timeline) {
-    children.forEach(elem => {
+    var scroller = children.filter(e => { return e.styleMap.get("--part") == "scroller"})[0];
+    children.filter(e => { return e.styleMap.get("--part") == "background"}).forEach(elem => {
       var t = elem.styleMap.transform;
-      t.m42 = -0.1 * root.scrollOffsets.top;
+      t.m42 = -0.1 * scroller.scrollOffsets.top;
       elem.styleMap.transform = t;
     });
   }

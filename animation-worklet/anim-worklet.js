@@ -98,9 +98,9 @@ limitations under the License.
             rootProperties.push('scrollLeft');
           }
           elementUpdate[animator].push({
-            'root': {
+            'root': roots[i].root ? {
               'proxy': rootProperties.length ? new CompositorProxy(roots[i].root, rootProperties) : null,
-              'styleMap': getProperties(roots[i].root, details.inputProperties)},
+              'styleMap': getProperties(roots[i].root, details.inputProperties)} : null,
             'children': [],
           });
           for (var j = 0; j < roots[i].children.length; j++) {
@@ -257,7 +257,7 @@ limitations under the License.
           }
           runningAnimators[animator].push({
             'animator': new ctors[animator](),
-            'root': new ElementProxy(roots[i].root, details.rootInputScroll, details.rootOutputScroll, details.rootInputProperties, details.rootOutputProperties),
+            'root': roots[i].root ? new ElementProxy(roots[i].root, details.rootInputScroll, details.rootOutputScroll, details.rootInputProperties, details.rootOutputProperties) : null,
             'children': [],
           });
           for (var j = 0; j < roots[i].children.length; j++) {
