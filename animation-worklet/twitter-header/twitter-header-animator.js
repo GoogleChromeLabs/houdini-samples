@@ -14,16 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('twitter-header', class TwitterHeader {
+  static get rootInputProperties() { return ['--scroll-range']; }
   static get inputProperties() { return ['--part']; }
   static get outputProperties() { return ['opacity', 'transform']; }
-  static get inputTime() { return true; }
-  static get rootInputScroll() { return true; }
 
-  animate(root, children, timeline) {
-    var scroll = root.scrollOffsets.top / (189 - 45);
-    if (scroll > 1) {
-      scroll = 1;
-    }
+  static get timelines() { return [
+    {type: 'scroll', options: {orientation: 'vertical'}},
+    {type: 'scroll', options: {
+      orientation: 'vertical',
+      endScrollOffset: '144px',
+    }},
+  ]};
+
+  animate(root, children, timelines) {
+    var scroll = timelines[1].currentTime;
+    var scrollPos = timelines[0].currentTime * parseFloat(root.styleMap.get('--scroll-range'));
+
     children.forEach(elem => {
       var part = elem.styleMap.get('--part');
       if (part == 'avatar') {
@@ -31,8 +37,8 @@ registerAnimator('twitter-header', class TwitterHeader {
         t.m11 = 1 - 0.6*scroll;
         t.m22 = 1 - 0.6*scroll;
         t.m41 = -scroll*45*0.6;
-        if(root.scrollOffsets.top > 189 - 45 * 0.6) {
-          t.m42 = root.scrollOffsets.top - (189 - 45 * 0.6) + 45;
+        if(scrollPos > 189 - 45 * 0.6) {
+          t.m42 = scrollPos - (189 - 45 * 0.6) + 45;
         } else {
           t.m42 = 45;
         }
@@ -40,7 +46,7 @@ registerAnimator('twitter-header', class TwitterHeader {
       } else if (part == 'bar') {
         elem.styleMap.opacity = scroll;
         var t = elem.styleMap.transform;
-        t.m42 = root.scrollOffsets.top;
+        t.m42 = scrollPos;
         elem.styleMap.transform = t;
       }
     });

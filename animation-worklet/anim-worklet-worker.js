@@ -19,23 +19,9 @@ limitations under the License.
   var animatorCtors = {};
   var animators = {};
 
-  // TODO(flackr): Snap scroll input to nearest 1 / deviceScaleFactor.
-  class ScrollOffsetsWrapper {
-    constructor(proxy) {
-      this.proxy_ = proxy;
-    }
-
-    get top() { return this.proxy_.scrollTop; }
-    set top(s) { this.proxy_.scrollTop = s;}
-    get left() { return this.proxy_.scrollLeft; }
-    set left(s) { this.proxy_.scrollLeft = s;}
-
-  };
-
   class ProxyElementWrapper {
     constructor(desc) {
       this.proxy_ = desc.proxy;
-      this.scrollOffsets = new ScrollOffsetsWrapper(desc.proxy);
       this.styleMap = new StyleMapWrapper(desc);
     }
 
@@ -72,12 +58,9 @@ limitations under the License.
       'details': {
         'inputProperties': ctor.inputProperties || [],
         'outputProperties': ctor.outputProperties || [],
-        'inputScroll': !!ctor.inputScroll,
-        'outputScroll': !!ctor.outputScroll,
         'rootInputProperties': ctor.rootInputProperties || [],
         'rootOutputProperties': ctor.rootOutputProperties || [],
-        'rootInputScroll': !!ctor.rootInputScroll,
-        'rootOutputScroll': !!ctor.rootOutputScroll,
+        'timelines': ctor.timelines || [],
     }});
   };
 
