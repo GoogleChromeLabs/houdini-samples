@@ -45,7 +45,7 @@ if (flagIsSet('noworklet')) {
   console.log('Using main thread rAF');
   // Force scrolling text field and image on their own comp layer
   window.parallax.style.willChange = 'transform';
-  window.scroller.style.willChange = 'transform';
+  window.scroller.style.backfaceVisibility = 'hidden';
   window.scroller.onscroll = function() {
     // Only schedule rAF once per frame
     if (!rafScheduled) {
