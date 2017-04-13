@@ -231,6 +231,14 @@ limitations under the License.
       constructor(element, properties) {
         // TODO(flackr): Restrict output properties based on constructor param.
         this.element_ = element;
+        var willChangeString = getComputedStyle(element).willChange
+        var willChange = willChangeString == 'auto' ? [] : willChangeString.split(', ');
+        for (var i = 0; i < properties.length; i++) {
+          var property = properties[i];
+          if ((property == 'transform' || property == 'opacity') && willChange.indexOf(property) == -1)
+            willChange.push(property);
+        }
+        element.style.willChange = willChange.join(', ');
       };
 
       set(key, val) {
