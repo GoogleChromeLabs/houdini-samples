@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('twitter-header', class TwitterHeader {
-  static get rootInputProperties() { return ['--scroll-range']; }
-  static get inputProperties() { return ['--part']; }
-  static get outputProperties() { return ['opacity', 'transform']; }
+  static get elements() { return [
+    {name: 'scroller', inputProperties: ['--scroll-range'], outputProperties: []},
+    {name: 'avatar', inputProperties: [], outputProperties: ['transform']},
+    {name: 'bar', inputProperties: [], outputProperties: ['transform', 'opacity']}]};
 
   static get timelines() { return [
     {type: 'scroll', options: {orientation: 'vertical'}},
@@ -26,29 +27,28 @@ registerAnimator('twitter-header', class TwitterHeader {
     }},
   ]};
 
-  animate(root, children, timelines) {
+  animate(elementMap, timelines) {
+    var scroller = elementMap.get('scroller')[0];
     var scroll = timelines[1].currentTime;
-    var scrollPos = timelines[0].currentTime * parseFloat(root.styleMap.get('--scroll-range'));
+    var scrollPos = timelines[0].currentTime * parseFloat(scroller.styleMap.get('--scroll-range'));
 
-    children.forEach(elem => {
-      var part = elem.styleMap.get('--part');
-      if (part == 'avatar') {
-        var t = elem.styleMap.transform;
-        t.m11 = 1 - 0.6*scroll;
-        t.m22 = 1 - 0.6*scroll;
-        t.m41 = -scroll*45*0.6;
-        if(scrollPos > 189 - 45 * 0.6) {
-          t.m42 = scrollPos - (189 - 45 * 0.6) + 45;
-        } else {
-          t.m42 = 45;
-        }
-        elem.styleMap.transform = t;
-      } else if (part == 'bar') {
-        elem.styleMap.opacity = scroll;
-        var t = elem.styleMap.transform;
-        t.m42 = scrollPos;
-        elem.styleMap.transform = t;
+    elementMap.get('avatar').forEach(elem => {
+      var t = elem.styleMap.transform;
+      t.m11 = 1 - 0.6*scroll;
+      t.m22 = 1 - 0.6*scroll;
+      t.m41 = -scroll*45*0.6;
+      if(scrollPos > 189 - 45 * 0.6) {
+        t.m42 = scrollPos - (189 - 45 * 0.6) + 45;
+      } else {
+        t.m42 = 45;
       }
+      elem.styleMap.transform = t;
+    });
+    elementMap.get('bar').forEach(elem => {
+      elem.styleMap.opacity = scroll;
+      var t = elem.styleMap.transform;
+      t.m42 = scrollPos;
+      elem.styleMap.transform = t;
     });
   }
 });

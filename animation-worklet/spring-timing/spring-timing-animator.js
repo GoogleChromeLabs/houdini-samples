@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('spring', class SpringAnimator {
-  static get inputProperties() { return ['--spring-k', '--ratio', '--target']; }
-  static get outputProperties() { return ['transform']; }
+  static get elements() { return [
+    {name: 'element', inputProperties: ['--spring-k', '--ratio', '--target'], outputProperties: ['transform']}]; }
   static get timelines() { return [{'type': 'document', options: {}}]; }
 
-  animate(root, children, timelines) {
+  animate(elementMap, timelines) {
     var timeline = timelines[0];
-    children.forEach((e) => {
+    elementMap.get('element').forEach((e) => {
       if (!e.springTiming_)  {
         // initialize the simulation.
         const k = parseFloat(e.styleMap.get('--spring-k'));

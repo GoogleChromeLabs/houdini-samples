@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('parallax', class ParallaxAnimator {
-  static get outputProperties() { return ['transform']; }
-  static get inputProperties() { return ['--part']; }
+  static get elements() { return [
+    {name: 'background', inputProperties: [], outputProperties: ['transform']}]; }
   static get timelines() { return [
     {type: 'scroll', options: {orientation: 'vertical'}}]}
 
-  animate(root, children, timelines) {
-    children.filter(e => { return e.styleMap.get("--part") == "background"}).forEach(elem => {
+  animate(elementMap, timelines) {
+    elementMap.get('background').forEach(elem => {
       var t = elem.styleMap.transform;
       t.m42 = -200 * timelines[0].currentTime;
       elem.styleMap.transform = t;
