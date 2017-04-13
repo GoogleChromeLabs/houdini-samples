@@ -15,15 +15,15 @@ limitations under the License.
 */
 registerAnimator('parallax', class ParallaxAnimator {
   static get elements() { return [
-    {name: 'background', inputProperties: [], outputProperties: ['transform']}]; }
+    {name: 'background', inputProperties: ['transform'], outputProperties: ['transform']}]; }
   static get timelines() { return [
     {type: 'scroll', options: {orientation: 'vertical'}}]}
 
   animate(elementMap, timelines) {
     elementMap.get('background').forEach(elem => {
-      var t = elem.styleMap.transform;
+      var t = elem.inputStyleMap.get('transform');
       t.m42 = -200 * timelines[0].currentTime;
-      elem.styleMap.transform = t;
+      elem.outputStyleMap.set('transform', t);
     });
   }
 

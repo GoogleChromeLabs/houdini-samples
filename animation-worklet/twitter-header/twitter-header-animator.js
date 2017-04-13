@@ -16,8 +16,8 @@ limitations under the License.
 registerAnimator('twitter-header', class TwitterHeader {
   static get elements() { return [
     {name: 'scroller', inputProperties: ['--scroll-range'], outputProperties: []},
-    {name: 'avatar', inputProperties: [], outputProperties: ['transform']},
-    {name: 'bar', inputProperties: [], outputProperties: ['transform', 'opacity']}]};
+    {name: 'avatar', inputProperties: ['transform'], outputProperties: ['transform']},
+    {name: 'bar', inputProperties: ['transform'], outputProperties: ['transform', 'opacity']}]};
 
   static get timelines() { return [
     {type: 'scroll', options: {orientation: 'vertical'}},
@@ -30,10 +30,10 @@ registerAnimator('twitter-header', class TwitterHeader {
   animate(elementMap, timelines) {
     var scroller = elementMap.get('scroller')[0];
     var scroll = timelines[1].currentTime;
-    var scrollPos = timelines[0].currentTime * parseFloat(scroller.styleMap.get('--scroll-range'));
+    var scrollPos = timelines[0].currentTime * parseFloat(scroller.inputStyleMap.get('--scroll-range'));
 
     elementMap.get('avatar').forEach(elem => {
-      var t = elem.styleMap.transform;
+      var t = elem.inputStyleMap.get('transform');
       t.m11 = 1 - 0.6*scroll;
       t.m22 = 1 - 0.6*scroll;
       t.m41 = -scroll*45*0.6;
@@ -42,13 +42,13 @@ registerAnimator('twitter-header', class TwitterHeader {
       } else {
         t.m42 = 45;
       }
-      elem.styleMap.transform = t;
+      elem.outputStyleMap.set('transform', t);
     });
     elementMap.get('bar').forEach(elem => {
-      elem.styleMap.opacity = scroll;
-      var t = elem.styleMap.transform;
+      elem.outputStyleMap.set('opacity', scroll);
+      var t = elem.inputStyleMap.get('transform');
       t.m42 = scrollPos;
-      elem.styleMap.transform = t;
+      elem.outputStyleMap.set('transform', t);
     });
   }
 });

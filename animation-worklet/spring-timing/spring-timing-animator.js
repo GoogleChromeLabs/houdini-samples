@@ -15,7 +15,7 @@ limitations under the License.
 */
 registerAnimator('spring', class SpringAnimator {
   static get elements() { return [
-    {name: 'element', inputProperties: ['--spring-k', '--ratio', '--target'], outputProperties: ['transform']}]; }
+    {name: 'element', inputProperties: ['--spring-k', '--ratio', '--target', 'transform'], outputProperties: ['transform']}]; }
   static get timelines() { return [{'type': 'document', options: {}}]; }
 
   animate(elementMap, timelines) {
@@ -23,21 +23,21 @@ registerAnimator('spring', class SpringAnimator {
     elementMap.get('element').forEach((e) => {
       if (!e.springTiming_)  {
         // initialize the simulation.
-        const k = parseFloat(e.styleMap.get('--spring-k'));
-        const ratio = Math.min(parseFloat(e.styleMap.get('--ratio')), 1 - 1e-5);
+        const k = parseFloat(e.inputStyleMap.get('--spring-k'));
+        const ratio = Math.min(parseFloat(e.inputStyleMap.get('--ratio')), 1 - 1e-5);
 
         e.startTime_ = timeline.currentTime;
         e.springTiming_ = this.spring(k, ratio);
       }
 
-      const target = parseFloat(e.styleMap.get('--target'));
+      const target = parseFloat(e.inputStyleMap.get('--target'));
       // TODO(majidvp): stop computing a new value once we are withing a certainer threshold of the target.
       const dt_seconds = (timeline.currentTime - e.startTime_) / 1000;
       const dv = target * e.springTiming_(dt_seconds);
 
-      var t = e.styleMap.transform;
+      var t = e.inputStyleMap.get('transform');
       t.m41 = dv;
-      e.styleMap.transform = t;
+      e.outputStyleMap.set('transform', t);
     });
   }
 

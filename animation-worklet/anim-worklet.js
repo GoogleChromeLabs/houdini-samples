@@ -198,31 +198,48 @@ limitations under the License.
 
     class ElementProxy {
       constructor(element, inputProperties, outputProperties) {
-        this.styleMap = new ElementStyleMap(element, inputProperties, outputProperties);
+        this.inputStyleMap = new ElementInputStyleMap(element, inputProperties);
+        this.outputStyleMap = new ElementOutputStyleMap(element, outputProperties);
       }
     };
 
-    class ElementStyleMap {
-      constructor(element, inputProperties, outputProperties) {
-        // TODO(flackr): Restrict output properties based on constructor param.
+    class ElementInputStyleMap {
+      constructor(element, properties) {
+        this.properties_ = {};
         this.element_ = element;
         this.style_ = getComputedStyle(element);
-        for (var i = 0; i < inputProperties.length; i++) {
+        for (var i = 0; i < properties.length; i++) {
           // Skip copying "accelerated" properties.
-          var property = inputProperties[i];
+          var property = properties[i];
           if (property == 'transform' || property == 'opacity')
             continue;
-          this[property] = this.style_.getPropertyValue(property).trim();
+          this.properties_[property] = this.style_.getPropertyValue(property).trim();
         }
       };
 
-      get(key) { return this[key]; }
-      set(key, val) { this[key] = val; }
+      get(key) {
+        if (key == 'opacity')
+          return this.style_.opacity;
+        if (key == 'transform')
+          return this.style_.transform == 'none' ? new DOMMatrix() : new DOMMatrix(this.style_.transform);
+        return this.properties_[key];
+      }
+    };
 
-      get opacity() { return this.style_.opacity; }
-      set opacity(val) { this.element_.style.opacity = val; }
-      get transform() { return this.style_.transform == 'none' ? new DOMMatrix() : new DOMMatrix(this.style_.transform); };
-      set transform(val) { this.element_.style.transform = val.toString(); };
+    class ElementOutputStyleMap {
+      constructor(element, properties) {
+        // TODO(flackr): Restrict output properties based on constructor param.
+        this.element_ = element;
+      };
+
+      set(key, val) {
+        if (key == 'opacity')
+          this.element_.style.opacity = val;
+        else if (key == 'transform')
+          this.element_.style.transform = val.toString();
+        else
+          throw new Error('Unsupported output property: ' + key);
+      }
     };
 
     var runningAnimators = {};
