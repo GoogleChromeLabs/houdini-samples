@@ -220,8 +220,9 @@ limitations under the License.
       get(key) {
         if (key == 'opacity')
           return this.style_.opacity;
-        if (key == 'transform')
-          return this.style_.transform == 'none' ? new DOMMatrix() : new DOMMatrix(this.style_.transform);
+        if (key == 'transform') {
+          return this.style_.transform == 'none' ? new CSSMatrixComponent(new DOMMatrix()) : new CSSMatrixComponent(new DOMMatrix(this.style_.transform));
+        }
         return this.properties_[key];
       }
     };
@@ -446,6 +447,80 @@ limitations under the License.
       'import': importOnMain,
     }
   };
+
+  class CSSTransformValue {
+    constructor(transformList) {
+      this.transformList_ = transformList;
+    }
+
+    toString() {
+      return this.transformList_.map(t => {return t.toString(); }).join(' ');
+    }
+  };
+  class CSSTranslation {
+    constructor(x, y, z) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+      this.is2D = this.z === undefined;
+    }
+
+    get matrix() {
+      throw new Error('matrix not yet supported on translation');
+    }
+
+    toString() {
+      if (this.is2D) {
+        // TODO(flackr): Produce translateX or translateY if a component is 0.
+        return 'translate(' + this.x.toString() + ', ' + this.y.toString() + ')';
+      }
+      return 'translate3d(' + this.x.toString() + ', ' + this.y.toString() + ', ' + this.z.toString() + ')';
+    }
+  };
+  class CSSScale {
+    constructor(x, y, z) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+      this.is2D = this.z === undefined;
+    }
+
+    get matrix() {
+      throw new Error('matrix not yet supported on translation');
+    }
+
+    toString() {
+      if (this.is2D)
+        return 'scale(' + this.x + ', ' + this.y + ')';
+      return 'scale3d(' + this.x + ', ' + this.y + ', ' + this.z + ')';
+    }
+  };
+  class CSSSimpleLength {
+    constructor(value, units) {
+      this.value_ = value;
+      this.units_ = units;
+    }
+
+    toString() {
+      return this.value_ + this.units_;
+    }
+  };
+  class CSSMatrixComponent {
+    constructor(matrix) {
+      this.matrix = matrix;
+      // For now, all DOMMatrix constructions convert to 3d.
+      this.is2D = false;
+    }
+
+    toString() {
+      return matrix.toString();
+    }
+  };
+  scope.CSSTransformValue = CSSTransformValue;
+  scope.CSSTranslation = CSSTranslation;
+  scope.CSSScale = CSSScale;
+  scope.CSSSimpleLength = CSSSimpleLength;
+  scope.CSSMatrixComponent = CSSMatrixComponent;
 
   // Minimal Promise implementation for browsers which do not have promises.
   scope.Promise = scope.Promise || function(exec) {

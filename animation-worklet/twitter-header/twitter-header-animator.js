@@ -16,8 +16,8 @@ limitations under the License.
 registerAnimator('twitter-header', class TwitterHeader {
   static get elements() { return [
     {name: 'scroller', inputProperties: ['--scroll-range'], outputProperties: []},
-    {name: 'avatar', inputProperties: ['transform'], outputProperties: ['transform']},
-    {name: 'bar', inputProperties: ['transform'], outputProperties: ['transform', 'opacity']}]};
+    {name: 'avatar', inputProperties: [], outputProperties: ['transform']},
+    {name: 'bar', inputProperties: [], outputProperties: ['transform', 'opacity']}]};
 
   static get timelines() { return [
     {type: 'scroll', options: {orientation: 'vertical'}},
@@ -33,22 +33,17 @@ registerAnimator('twitter-header', class TwitterHeader {
     var scrollPos = timelines[0].currentTime * parseFloat(scroller.inputStyleMap.get('--scroll-range'));
 
     elementMap.get('avatar').forEach(elem => {
-      var t = elem.inputStyleMap.get('transform');
-      t.m11 = 1 - 0.6*scroll;
-      t.m22 = 1 - 0.6*scroll;
-      t.m41 = -scroll*45*0.6;
-      if(scrollPos > 189 - 45 * 0.6) {
-        t.m42 = scrollPos - (189 - 45 * 0.6) + 45;
-      } else {
-        t.m42 = 45;
-      }
-      elem.outputStyleMap.set('transform', t);
+      elem.outputStyleMap.set('transform', new CSSTransformValue([
+          new CSSTranslation(new CSSSimpleLength(-scroll*45*0.6, 'px'),
+                             new CSSSimpleLength(scrollPos > 189 - 45 * 0.6 ?
+                                scrollPos - (189 - 45 * 0.6) + 45 : 45, 'px')),
+          new CSSScale(1 - 0.6 * scroll, 1 - 0.6 * scroll),
+          ]));
     });
     elementMap.get('bar').forEach(elem => {
       elem.outputStyleMap.set('opacity', scroll);
-      var t = elem.inputStyleMap.get('transform');
-      t.m42 = scrollPos;
-      elem.outputStyleMap.set('transform', t);
+      elem.outputStyleMap.set('transform', new CSSTransformValue([
+          new CSSTranslation(new CSSSimpleLength(0, 'px'), new CSSSimpleLength(scrollPos, 'px'))]));
     });
   }
 });

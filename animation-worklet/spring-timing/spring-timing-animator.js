@@ -15,7 +15,7 @@ limitations under the License.
 */
 registerAnimator('spring', class SpringAnimator {
   static get elements() { return [
-    {name: 'element', inputProperties: ['--spring-k', '--ratio', '--target', 'transform'], outputProperties: ['transform']}]; }
+    {name: 'element', inputProperties: ['--spring-k', '--ratio', '--target'], outputProperties: ['transform']}]; }
   static get timelines() { return [{'type': 'document', options: {}}]; }
 
   animate(elementMap, timelines) {
@@ -35,9 +35,9 @@ registerAnimator('spring', class SpringAnimator {
       const dt_seconds = (timeline.currentTime - e.startTime_) / 1000;
       const dv = target * e.springTiming_(dt_seconds);
 
-      var t = e.inputStyleMap.get('transform');
-      t.m41 = dv;
-      e.outputStyleMap.set('transform', t);
+      e.outputStyleMap.set('transform', new CSSTransformValue([
+          new CSSTranslation(new CSSSimpleLength(dv, 'px'),
+                             new CSSSimpleLength(0, 'px'))]));
     });
   }
 
