@@ -238,7 +238,8 @@ limitations under the License.
           if ((property == 'transform' || property == 'opacity') && willChange.indexOf(property) == -1)
             willChange.push(property);
         }
-        element.style.willChange = willChange.join(', ');
+        if (willChange.length > 0)
+          element.style.willChange = willChange.join(', ');
       };
 
       set(key, val) {
