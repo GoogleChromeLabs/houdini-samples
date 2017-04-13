@@ -135,19 +135,26 @@ limitations under the License.
       // TODO(flackr): This is a hack for not getting inherited animator properties.
       var parentAnimator = elem.parentElement && getComputedStyle(elem.parentElement).getPropertyValue('--animator');
       if (animator && animator != parentAnimator) {
-        animator = animator.trim();
-        animatedElements[animator] = animatedElements[animator] || [{'root': undefined, 'children': []}];
-        animatedElements[animator][0].children.push(elem);
+        animator = animator.trim().split(/\s+/);
+        if (animator.length != 2)
+          throw new Error('Expected animator name and slot');
+        var animatorName = animator[0];
+        var animatorSlot = animator[1];
+        animatedElements[animatorName] = animatedElements[animatorName] || [{}];
+        animatedElements[animatorName][0].elements[animatorSlot] = animatedElements[animatorName][0].elements[animatorSlot] || [];
+        animatedElements[animatorName][0].elements[animatorSlot].push(elem);
       }
 
       var animatorRoot = getComputedStyle(elem).getPropertyValue('--animator-root');
       // TODO(flackr): This is a hack for not getting inherited animator properties.
       var parentAnimatorRoot = elem.parentElement && getComputedStyle(elem.parentElement).getPropertyValue('--animator-root');
       if (animatorRoot && animatorRoot != parentAnimatorRoot) {
-        animatorRoot = animatorRoot.trim();
-        animatedElements[animatorRoot] = animatedElements[animatorRoot] || [{'root': undefined, 'children': []}];
+        animator = animatorRoot.trim().split(/\s+/);
+        var animatorName = animator[0];
+        var animatorSlot = animator[1];
         // TODO(flackr): Support multiple roots.
-        animatedElements[animatorRoot][0].root = elem;
+        animatedElements[animatorName] = [{root: elem, elements: {}}];
+        animatedElements[animatorName][0].elements[animatorSlot] = [elem];
       }
     };
     onElementsUpdated();
@@ -175,11 +182,14 @@ limitations under the License.
     // This is invoked in the worklet to register |name|.
     scope.registerAnimator = function(name, ctor) {
       ctors[name] = ctor;
+      var slotMap = {};
+      for (var i = 0; i < ctor.elements.length; i++) {
+        if (slotMap[ctor.elements[i].name])
+          throw new Error('Slot ' + ctor.elements[i].name + ' defined more than once.');
+        slotMap[ctor.elements[i].name] = ctor.elements[i];
+      }
       animators[name] = {
-        'inputProperties': ctor.inputProperties || [],
-        'outputProperties': ctor.outputProperties || [],
-        'rootInputProperties': ctor.rootInputProperties || [],
-        'rootOutputProperties': ctor.rootOutputProperties || [],
+        'elements': slotMap,
         'timelines': ctor.timelines,
       };
       // TODO(flackr): Do a targeted update of just the added animation worklet.
@@ -226,13 +236,10 @@ limitations under the License.
           continue;
         runningAnimators[animator] = [];
         for (var i = 0; i < roots.length; i++) {
-          var rootProperties = [];
-          // TODO(flackr): Add timeline construction.
           runningAnimators[animator].push({
             'timelines': [],
             'animator': new ctors[animator](),
-            'root': roots[i].root ? new ElementProxy(roots[i].root, details.rootInputProperties, details.rootOutputProperties) : null,
-            'children': [],
+            'elementMap': {},
           });
           for (var j = 0; j < details.timelines.length; j++) {
             if (details.timelines[i].type == 'document') {
@@ -246,10 +253,20 @@ limitations under the License.
               runningAnimators[animator][i].timelines.push(undefined);
             }
           }
-          for (var j = 0; j < roots[i].children.length; j++) {
-            runningAnimators[animator][i].children.push(new ElementProxy(roots[i].children[j],
-                details.inputProperties, details.outputProperties));
+          var elementMap = {};
+          for (var slotName in roots[i].elements) {
+            // Elements in unlisted slots are not proxied.
+            if (!details.elements[slotName])
+              continue;
+            elementMap[slotName] = [];
+            var inputProperties = details.elements[slotName].inputProperties;
+            var outputProperties = details.elements[slotName].outputProperties;
+            for (var j = 0; j < roots[i].elements[slotName].length; j++) {
+              elementMap[slotName].push(new ElementProxy(roots[i].elements[slotName][j],
+                inputProperties, outputProperties));
+            }
           }
+          runningAnimators[animator][i].elementMap = new ElementProxyMap(elementMap);
         }
       }
     }
@@ -261,13 +278,21 @@ limitations under the License.
       for (var animator in runningAnimators) {
         for (var i = 0; i < runningAnimators[animator].length; i++) {
           var desc = runningAnimators[animator][i];
-          desc.animator.animate(desc.root, desc.children, desc.timelines);
+          desc.animator.animate(desc.elementMap, desc.timelines);
         }
       }
 
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
+
+    class ElementProxyMap {
+      constructor(map) {
+        this.elementMap_ = map;
+      }
+
+      get(key) { return this.elementMap_[key]; }
+    }
 
     class DocumentTimeline {
       constructor(options) {
