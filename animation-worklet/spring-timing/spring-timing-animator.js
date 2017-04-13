@@ -16,9 +16,10 @@ limitations under the License.
 registerAnimator('spring', class SpringAnimator {
   static get inputProperties() { return ['--spring-k', '--ratio', '--target']; }
   static get outputProperties() { return ['transform']; }
-  static get inputTime() { return true; }
+  static get timelines() { return [{'type': 'document', options: {}}]; }
 
-  animate(root, children, timeline, console) {
+  animate(root, children, timelines) {
+    var timeline = timelines[0];
     children.forEach((e) => {
       if (!e.springTiming_)  {
         // initialize the simulation.

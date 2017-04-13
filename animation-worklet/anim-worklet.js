@@ -93,10 +93,6 @@ limitations under the License.
         elementUpdate[animator] = [];
         for (var i = 0; i < roots.length; i++) {
           var rootProperties = filterCompositedProperties(details.rootInputProperties, details.rootOutputProperties);
-          if (details.rootInputScroll || details.rootOutputScroll) {
-            rootProperties.push('scrollTop');
-            rootProperties.push('scrollLeft');
-          }
           elementUpdate[animator].push({
             'root': roots[i].root ? {
               'proxy': rootProperties.length ? new CompositorProxy(roots[i].root, rootProperties) : null,
@@ -105,10 +101,6 @@ limitations under the License.
           });
           for (var j = 0; j < roots[i].children.length; j++) {
             var properties = filterCompositedProperties(details.inputProperties, details.outputProperties);
-            if (details.inputScroll || details.outputScroll) {
-              properties.push('scrollTop');
-              properties.push('scrollLeft');
-            }
             elementUpdate[animator][i].children.push({
               'proxy': properties.length ? new CompositorProxy(roots[i].children[j], properties) : null,
               'styleMap': getProperties(roots[i].children[j], details.inputProperties),
@@ -186,21 +178,17 @@ limitations under the License.
       animators[name] = {
         'inputProperties': ctor.inputProperties || [],
         'outputProperties': ctor.outputProperties || [],
-        'inputScroll': !!ctor.inputScroll,
-        'outputScroll': !!ctor.outputScroll,
         'rootInputProperties': ctor.rootInputProperties || [],
         'rootOutputProperties': ctor.rootOutputProperties || [],
-        'rootInputScroll': !!ctor.rootInputScroll,
-        'rootOutputScroll': !!ctor.rootOutputScroll,
+        'timelines': ctor.timelines,
       };
       // TODO(flackr): Do a targeted update of just the added animation worklet.
       updateRunningAnimators();
     };
 
     class ElementProxy {
-      constructor(element, inputScroll, outputScroll, inputProperties, outputProperties) {
+      constructor(element, inputProperties, outputProperties) {
         this.styleMap = new ElementStyleMap(element, inputProperties, outputProperties);
-        this.scrollOffsets = new ElementScrollMap(element, inputScroll, outputScroll);
       }
     };
 
@@ -227,18 +215,6 @@ limitations under the License.
       set transform(val) { this.element_.style.transform = val.toString(); };
     };
 
-    class ElementScrollMap {
-      constructor(element, input, output) {
-        // TODO(flackr): Restrict access to input / output scroll according to constructor params.
-        this.element_ = element;
-      }
-
-      get top() { return this.element_.scrollTop; }
-      set top(val) { this.element_.scrollTop = val; }
-      get left() { return this.element_.scrollLeft; }
-      set left(val) { this.element_.scrollLeft = val; }
-    };
-
     var runningAnimators = {};
     onElementsUpdated = updateRunningAnimators;
     function updateRunningAnimators() {
@@ -251,36 +227,101 @@ limitations under the License.
         runningAnimators[animator] = [];
         for (var i = 0; i < roots.length; i++) {
           var rootProperties = [];
-          if (details.rootInputScroll) {
-            rootProperties.push('scrollTop');
-            rootProperties.push('scrollLeft');
-          }
+          // TODO(flackr): Add timeline construction.
           runningAnimators[animator].push({
+            'timelines': [],
             'animator': new ctors[animator](),
-            'root': roots[i].root ? new ElementProxy(roots[i].root, details.rootInputScroll, details.rootOutputScroll, details.rootInputProperties, details.rootOutputProperties) : null,
+            'root': roots[i].root ? new ElementProxy(roots[i].root, details.rootInputProperties, details.rootOutputProperties) : null,
             'children': [],
           });
+          for (var j = 0; j < details.timelines.length; j++) {
+            if (details.timelines[i].type == 'document') {
+              runningAnimators[animator][i].timelines.push(new DocumentTimeline(details.timelines[j].options));
+            } else if (details.timelines[i].type == 'scroll') {
+              var scrollTimelineOptions = JSON.parse(JSON.stringify(details.timelines[j].options));
+              scrollTimelineOptions.scrollSource = findNearestOverflow(roots[i].root);
+              runningAnimators[animator][i].timelines.push(new ScrollTimeline(scrollTimelineOptions));
+            } else {
+              console.error('Invalid timeline type ' + details.timelines[i].type);
+              runningAnimators[animator][i].timelines.push(undefined);
+            }
+          }
           for (var j = 0; j < roots[i].children.length; j++) {
             runningAnimators[animator][i].children.push(new ElementProxy(roots[i].children[j],
-                details.inputScroll, details.outputScroll, details.inputProperties, details.outputProperties));
+                details.inputProperties, details.outputProperties));
           }
         }
       }
     }
 
-    var timeline = {'currentTime': 0};
+    var rafTime = 0;
     function raf(ts) {
-      timeline.currentTime = ts;
+      rafTime = ts;
+      // TODO(flackr): Check if animators need to be run.
       for (var animator in runningAnimators) {
         for (var i = 0; i < runningAnimators[animator].length; i++) {
           var desc = runningAnimators[animator][i];
-          desc.animator.animate(desc.root, desc.children, timeline);
+          desc.animator.animate(desc.root, desc.children, desc.timelines);
         }
       }
 
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
+
+    class DocumentTimeline {
+      constructor(options) {
+        this.originTime = options.originTime || 0;
+      }
+
+      get currentTime() {
+        return Math.max(0, rafTime - this.originTime);
+      }
+    }
+
+    function calculateScrollOffset(scrollSource, position) {
+      // TODO(flackr): Optimize this to not do string parsing every time it's
+      // queried.
+      if (position.endsWith('px')) {
+        return parseFloat(position.substring(0, position.length - 2));
+      } else if (position.endsWith('%')) {
+        var viewHeight = scrollSource == document.scrollingElement ? window.innerHeight : scrollSource.clientHeight;
+        return (scrollSource.scrollHeight - viewHeight) * (parseFloat(position.substring(0, position.length - 1)) / 100);
+      } else {
+        throw new Error('Unhandled scroll position: ' + position);
+      }
+    }
+
+    function findNearestOverflow(element) {
+      while (element) {
+        if (getComputedStyle(element).overflow != 'visible')
+          return element;
+      // TODO(flackr): This should follow standard containing block rules.
+        element = element.parentElement;
+      }
+      return document.scrollingElement;
+    }
+
+    class ScrollTimeline {
+      constructor(options) {
+        this.scrollSource_ = options.scrollSource;
+        // TODO(flackr): Use requested orientation instead of assuming vertical.
+        this.orientation_ = options.orientation || 'auto';
+        this.startScrollOffset_ = options.startScrollOffset || 'auto';
+        this.endScrollOffset_ = options.endScrollOffset || 'auto';
+        // TODO(flackr): Compute auto timerange from the length of the "animation"?
+        this.timeRange_ = (!options.timeRange || options.timeRange == 'auto') ? 1 : options.timeRange;
+        this.fill_ = options.fill;
+      }
+
+      get currentTime() {
+        var scrollPos = this.scrollSource_.scrollTop;
+        var startOffset = calculateScrollOffset(this.scrollSource_, this.startScrollOffset_ == 'auto' ? '0px' : this.startScrollOffset_);
+        var endOffset = calculateScrollOffset(this.scrollSource_, this.endScrollOffset_ == 'auto' ? '100%' : this.endScrollOffset_)
+        // TODO(flackr): Respect the timeline's fill mode.
+        return Math.min(1, Math.max(0, (scrollPos - startOffset) / (endOffset - startOffset))) * this.timeRange_;
+      }
+    }
 
     var animators = {};
 
@@ -403,7 +444,8 @@ limitations under the License.
   }
 
   // TODO(flackr): It seems we can't properly polyfill animationWorklet because it exists with --experimental-web-platform-features and seems to be read-only.
-  scope.polyfillAnimationWorklet = scope.CompositorWorker ? CompositorWorkerAnimationWorklet() : MainThreadAnimationWorklet();
+  // TODO(flackr): Get CompositorWorkerAnimationWorklet polyfill working with new API.
+  scope.polyfillAnimationWorklet = false && scope.CompositorWorker ? CompositorWorkerAnimationWorklet() : MainThreadAnimationWorklet();
   scope.polyfillAnimationWorklet.updateElements = updateElements;
 
 })(self);

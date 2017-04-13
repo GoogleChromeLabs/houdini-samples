@@ -57,6 +57,11 @@ limitations under the License.
       </section>
       <script src="../anim-worklet.js"></script>
       <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          var scroller = document.getElementById('scroller');
+          // Hack to be able to convert ScrollTimeline back into scroll position.
+          scroller.style = '--scroll-range: ' + (scroller.scrollHeight - scroller.clientHeight);
+        });
         window.polyfillAnimationWorklet.import('twitter-header-animator.js');
       </script>
     </div>

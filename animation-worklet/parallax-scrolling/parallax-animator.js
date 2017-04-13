@@ -16,13 +16,13 @@ limitations under the License.
 registerAnimator('parallax', class ParallaxAnimator {
   static get outputProperties() { return ['transform']; }
   static get inputProperties() { return ['--part']; }
-  static get inputScroll() { return true; }
+  static get timelines() { return [
+    {type: 'scroll', options: {orientation: 'vertical'}}]}
 
-  animate(root, children, timeline) {
-    var scroller = children.filter(e => { return e.styleMap.get("--part") == "scroller"})[0];
+  animate(root, children, timelines) {
     children.filter(e => { return e.styleMap.get("--part") == "background"}).forEach(elem => {
       var t = elem.styleMap.transform;
-      t.m42 = -0.1 * scroller.scrollOffsets.top;
+      t.m42 = -200 * timelines[0].currentTime;
       elem.styleMap.transform = t;
     });
   }
