@@ -140,7 +140,7 @@ limitations under the License.
           throw new Error('Expected animator name and slot');
         var animatorName = animator[0];
         var animatorSlot = animator[1];
-        animatedElements[animatorName] = animatedElements[animatorName] || [{}];
+        animatedElements[animatorName] = animatedElements[animatorName] || [{root: undefined, elements: {}}];
         animatedElements[animatorName][0].elements[animatorSlot] = animatedElements[animatorName][0].elements[animatorSlot] || [];
         animatedElements[animatorName][0].elements[animatorSlot].push(elem);
       }

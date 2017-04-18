@@ -1,0 +1,75 @@
+<!doctype html>
+<!--
+Copyright 2016 Google, Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<style>
+  .expando {
+    overflow: hidden;
+    position: relative;
+    --animator-root: expand clip;
+    --expand-scale: 13;
+  }
+
+  .expando {
+    border-radius: 50%;
+    height: 100px;
+    width: 100px;
+  }
+
+  .expando .content {
+    --animator: expand content;
+  }
+
+  .expando .small {
+    --animator: expand small;
+    border-radius: 5px;
+    width: 360px;
+    height: 500px;
+    background: orange;
+    position: absolute;
+  }
+
+  .expando .large {
+    --animator: expand large;
+    background: yellow;
+    border-radius: 5px;
+    width: 360px;
+    height: 500px;
+    position: absolute;
+  }
+</style>
+<body>
+  <div class="expando">
+    <div class="content">
+      <div class="small">
+        <p>Small content title</p>
+      </div>
+      <div class="large">
+        <p>This is the large form content which contains many additional details.</p>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="../anim-worklet.js"></script>
+<script>
+  window.polyfillAnimationWorklet.import('expand-animator.js');
+</script>
+
+</html>
