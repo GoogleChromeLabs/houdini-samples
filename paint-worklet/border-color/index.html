@@ -1,0 +1,75 @@
+<!doctype html>
+
+<!--
+Copyright 2017 Google, Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!DOCTYPE html>
+<style>
+#example {
+  max-width: 100px;
+  --border-top-width: 10;
+  --border-right-width: 20;
+  --border-bottom-width: 30;
+  --border-left-width: 40;
+  --border-top-color: red aquamarine;
+  --border-right-color: lightskyblue green lightskyblue green;
+  --border-bottom-color: deepskyblue cyan lightgoldenrodyellow;
+  --border-left-color: gold orange red pink;
+}
+.multi-border {
+  border: solid 0;
+  border-image: paint(border-colors);
+  border-image-slice:
+    var(--border-top-width)
+    var(--border-right-width)
+    var(--border-bottom-width)
+    var(--border-left-width);
+  border-width:
+    calc(var(--border-top-width) * 1px)
+    calc(var(--border-right-width) * 1px)
+    calc(var(--border-bottom-width) * 1px)
+    calc(var(--border-left-width) * 1px);
+}
+</style>
+<div id=example class=multi-border>CSS Paint API is Awesome</div>
+<script>
+[
+  '--border-top-color',
+  '--border-right-color',
+  '--border-bottom-color',
+  '--border-left-color',
+].map((name) => {
+  CSS.registerProperty({
+    name: name,
+    syntax: '<color>+',
+    inherits: false,
+    initialValue: 'currentcolor',
+  });
+});
+[
+  '--border-top-width',
+  '--border-right-width',
+  '--border-bottom-width',
+  '--border-left-width',
+].map((name) => {
+  CSS.registerProperty({
+    name: name,
+    syntax: '<number>',
+    inherits: false,
+    initialValue: '0',
+  });
+});
+paintWorklet.import('border-colors.js');
+</script>
