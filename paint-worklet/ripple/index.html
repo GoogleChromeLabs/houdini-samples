@@ -44,7 +44,7 @@ limitations under the License.
 </style>
 
 <script>
-window.paintWorklet.import('paintworklet.js');
+window.paintWorklet.addModule('paintworklet.js');
 const button = document.querySelector('#ripple');
 let start = performance.now();
 let x, y;
