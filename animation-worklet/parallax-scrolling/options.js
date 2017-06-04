@@ -1,5 +1,5 @@
-(function() {
-  var options = document.querySelectorAll('#options label');
+document.addEventListener('DOMContentLoaded', function() {
+  window.options = document.querySelectorAll('#options label');
 
   // Init checkboxes
   Array.prototype.forEach.call(options, function(option) {
@@ -17,4 +17,4 @@
     });
     location.search = '?' + opts.join('&');
   };
-})();
+});

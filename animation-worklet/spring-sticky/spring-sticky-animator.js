@@ -14,18 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('spring-sticky', class SpringAnimator {
-  static get elements() { return [
-    {name: 'scroller', inputProperties: ['--scroll-range'], outputProperties: []},
-    {name: 'box', inputProperties: [], outputProperties: ['transform']}]; }
-  static get timelines() { return [{'type': 'scroll', options: {}}]; }
-
-  constructor() {
+  constructor(options) {
     this.velocities = [];
     this.positions = [];
   }
 
-  animate(elementMap, timelines) {
-    var boxes = elementMap.get('box');
+  animate(timelines, effects) {
+    var boxes = effects;
     if (boxes.length != this.velocities.length) {
       // If number of elements change, stored state is no longer correct.
       this.velocities = [];
@@ -35,8 +30,7 @@ registerAnimator('spring-sticky', class SpringAnimator {
         this.positions.push(0);
       }
     }
-    var scroller = elementMap.get('scroller')[0];
-    var targetPos = timelines[0].currentTime * parseFloat(scroller.inputStyleMap.get('--scroll-range'));
+    var targetPos = timelines[1].currentTime;
     for (var i = 0; i < boxes.length; i++) {
       if (i == 0) {
         // Box 0 stays stuck.
@@ -48,9 +42,7 @@ registerAnimator('spring-sticky', class SpringAnimator {
         // Positions cannot stretch, but can collapse.
         this.positions[i] = Math.max(targetPos - 100, Math.min(targetPos, this.positions[i]));
       }
-      boxes[i].outputStyleMap.set('transform', new CSSTransformValue([
-        new CSSTranslation(new CSSSimpleLength(0, 'px'),
-                           new CSSSimpleLength(this.positions[i], 'px'))]));
+      boxes[i].localTime = this.positions[i];
       targetPos = this.positions[i];
     }
   }

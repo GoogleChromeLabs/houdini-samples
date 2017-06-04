@@ -14,36 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('twitter-header', class TwitterHeader {
-  static get elements() { return [
-    {name: 'scroller', inputProperties: ['--scroll-range'], outputProperties: []},
-    {name: 'avatar', inputProperties: [], outputProperties: ['transform']},
-    {name: 'bar', inputProperties: [], outputProperties: ['transform', 'opacity']}]};
+  constructor(options) {
+    this.options = options;
+  }
 
-  static get timelines() { return [
-    {type: 'scroll', options: {orientation: 'vertical'}},
-    {type: 'scroll', options: {
-      orientation: 'vertical',
-      endScrollOffset: '144px',
-    }},
-  ]};
-
-  animate(elementMap, timelines) {
-    var scroller = elementMap.get('scroller')[0];
-    var scroll = timelines[1].currentTime;
-    var scrollPos = timelines[0].currentTime * parseFloat(scroller.inputStyleMap.get('--scroll-range'));
-
-    elementMap.get('avatar').forEach(elem => {
-      elem.outputStyleMap.set('transform', new CSSTransformValue([
-          new CSSTranslation(new CSSSimpleLength(-scroll*45*0.6, 'px'),
-                             new CSSSimpleLength(scrollPos > 189 - 45 * 0.6 ?
-                                scrollPos - (189 - 45 * 0.6) + 45 : 45, 'px')),
-          new CSSScale(1 - 0.6 * scroll, 1 - 0.6 * scroll),
-          ]));
-    });
-    elementMap.get('bar').forEach(elem => {
-      elem.outputStyleMap.set('opacity', scroll);
-      elem.outputStyleMap.set('transform', new CSSTransformValue([
-          new CSSTranslation(new CSSSimpleLength(0, 'px'), new CSSSimpleLength(scrollPos, 'px'))]));
-    });
+  animate(timelines, effects) {
+    var scrollPos = timelines[0].currentTime * this.options.scrollRange;
+    // Avatar scale
+    effects[0].localTime = timelines[1].currentTime;
+    // Avatar position
+    effects[1].localTime = scrollPos > 189 - 45 * 0.6 ?
+        scrollPos - (189 - 45 * 0.6) + 45 : 45;
+    // Header bar position
+    effects[2].localTime = scrollPos;
+    // Header bar opacity
+    effects[3].localTime = timelines[1].currentTime;
   }
 });
