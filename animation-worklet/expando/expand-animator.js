@@ -13,15 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-registerAnimator('expand', class SpringAnimator {
-  static get elements() { return [
-    {name: 'clip', inputProperties: ['--expand-scale'], outputProperties: ['transform']},
-    {name: 'content', inputProperties: [], outputProperties: ['transform']},
-    {name: 'small', inputProperties: [], outputProperties: ['opacity']},
-    {name: 'large', inputProperties: [], outputProperties: ['opacity']}]; }
-  static get timelines() { return [{'type': 'document', options: {}}]; }
+registerAnimator('expand', class ExpandAnimator {
+  constructor(options) {
+    this.options = options;
+  }
 
-  animate(elementMap, timelines) {
+  animate(timelines, effects) {
     // TODO(flackr): Control transition through input.
     // TODO(flackr): Use non-linear transition.
     var repeatTime = timelines[0].currentTime * 0.001 % 5;
@@ -33,27 +30,25 @@ registerAnimator('expand', class SpringAnimator {
     else
       t = 1;
 
-    var clip = elementMap.get('clip')[0];
-    var content = elementMap.get('content')[0];
-    var small = elementMap.get('small')[0];
-    var large = elementMap.get('large')[0];
-    var expandScale = parseFloat(clip.inputStyleMap.get('--expand-scale'));
+    var clip = effects[0];
+    var content = effects[1];
+    var offset = effects[2];
+    var small = effects[3];
+    var large = effects[4];
+    var expandScale = this.options.expandScale;
     var scale = (expandScale - 1) * t + 1;
 
-    clip.outputStyleMap.set('transform', new CSSTransformValue([
-        new CSSScale(scale, scale)]));
+    clip.localTime = t;
+    offset.localTime = t;
 
     // Counter-scale the content elements.
     var counterScale = 1 / scale;
-    var offset = 50 * (scale - 1);
-    content.outputStyleMap.set('transform', new CSSTransformValue([
-      new CSSScale(counterScale, counterScale),
-      new CSSTranslation(new CSSSimpleLength(0, 'px'),
-                         new CSSSimpleLength(offset, 'px'))]));
+    var maxCounterScale = 1 / expandScale;
+    content.localTime = (counterScale - 1) / (maxCounterScale - 1);
 
     // Crossfade between small and large.
-    small.outputStyleMap.set('opacity', 1 - t);
-    large.outputStyleMap.set('opacity', t);
+    small.localTime = t;
+    large.localTime = t;
   }
 
 });

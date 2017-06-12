@@ -82,7 +82,7 @@ header {
 .tweets {
   padding: 10px;
 }
-.bar {
+.bar > section {
   opacity: 0;
   position: absolute;
   top: 0;

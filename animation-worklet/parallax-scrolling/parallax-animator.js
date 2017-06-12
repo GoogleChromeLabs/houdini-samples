@@ -14,17 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('parallax', class ParallaxAnimator {
-  static get elements() { return [
-    {name: 'background', inputProperties: [], outputProperties: ['transform']}]; }
-  static get timelines() { return [
-    {type: 'scroll', options: {orientation: 'vertical'}}]}
-
-  animate(elementMap, timelines) {
-    elementMap.get('background').forEach(elem => {
-      elem.outputStyleMap.set('transform', new CSSTransformValue([
-        new CSSTranslation(new CSSSimpleLength(0, 'px'),
-                           new CSSSimpleLength(-200 * timelines[0].currentTime, 'px'))]));
-    });
+  animate(timelines, effects) {
+    effects[0].localTime = 200 * timelines[0].currentTime;
   }
-
 });

@@ -58,18 +58,40 @@ limitations under the License.
 <body>
   <div class="expando">
     <div class="content">
-      <div class="small">
-        <p>Small content title</p>
-      </div>
-      <div class="large">
-        <p>This is the large form content which contains many additional details.</p>
+      <!-- TODO(flackr): We shouldn't need a separate element to apply the offset.
+      Using the same element should fix the stutter but need to figure out how to
+      compose animations in the WebAnimations polyfill. -->
+      <div class="offset">
+        <div class="small">
+          <p>Small content title</p>
+        </div>
+        <div class="large">
+          <p>This is the large form content which contains many additional details.</p>
+        </div>
       </div>
     </div>
   </div>
 </body>
 <script src="../anim-worklet.js"></script>
 <script>
-  window.polyfillAnimationWorklet.import('expand-animator.js');
+  window.animationWorkletPolyfill.addModule('expand-animator.js');
+  document.addEventListener('DOMContentLoaded', function() {
+    var expando = document.querySelector('.expando');
+    var offset = document.querySelector('.expando .offset');
+    var content = document.querySelector('.expando .content');
+    var smallContent = document.querySelector('.expando .small');
+    var largeContent = document.querySelector('.expando .large');
+    var expandScale = 13;
+    var effectOptions = {duration: 1, fill: 'both'};
+    window.expandoAnimator = new WorkletAnimation('expand', [
+        new KeyframeEffect(expando, [{'transform': 'scale(1)'}, {'transform': 'scale(' + expandScale + ')'}], effectOptions),
+        new KeyframeEffect(content, [{'transform': 'scale(1)'}, {'transform': 'scale(' + (1 / expandScale) + ')'}], effectOptions),
+        new KeyframeEffect(offset, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + (0.5 * expando.clientWidth * (expandScale - 1)) + 'px)'}], effectOptions),
+        new KeyframeEffect(smallContent, [{'opacity': 1}, {'opacity': 0}], effectOptions),
+        new KeyframeEffect(largeContent, [{'opacity': 0}, {'opacity': 1}], effectOptions),
+      ], [new DocumentTimeline()], {'expandScale': expandScale});
+    window.expandoAnimator.play();
+  });
 </script>
 
 </html>

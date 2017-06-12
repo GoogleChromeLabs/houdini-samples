@@ -14,31 +14,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('spring', class SpringAnimator {
-  static get elements() { return [
-    {name: 'element', inputProperties: ['--spring-k', '--ratio', '--target'], outputProperties: ['transform']}]; }
-  static get timelines() { return [{'type': 'document', options: {}}]; }
+  constructor(options) {
+    this.options = options;
+  }
 
-  animate(elementMap, timelines) {
+  animate(timelines, effects) {
     var timeline = timelines[0];
-    elementMap.get('element').forEach((e) => {
+    for (var i = 0; i < effects.length; i++) {
+      var e = effects[i];
+      var params =this.options[i];
       if (!e.springTiming_)  {
         // initialize the simulation.
-        const k = parseFloat(e.inputStyleMap.get('--spring-k'));
-        const ratio = Math.min(parseFloat(e.inputStyleMap.get('--ratio')), 1 - 1e-5);
+        const k = params.k;
+        const ratio = Math.min(params.ratio, 1 - 1e-5);
 
         e.startTime_ = timeline.currentTime;
         e.springTiming_ = this.spring(k, ratio);
       }
-
-      const target = parseFloat(e.inputStyleMap.get('--target'));
+      const target = params.target;
       // TODO(majidvp): stop computing a new value once we are withing a certainer threshold of the target.
       const dt_seconds = (timeline.currentTime - e.startTime_) / 1000;
       const dv = target * e.springTiming_(dt_seconds);
 
-      e.outputStyleMap.set('transform', new CSSTransformValue([
-          new CSSTranslation(new CSSSimpleLength(dv, 'px'),
-                             new CSSSimpleLength(0, 'px'))]));
-    });
+      e.localTime = dv;
+    }
   }
 
   // Based on flutter spring simulation for an under-damped spring:
