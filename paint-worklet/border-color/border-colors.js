@@ -34,10 +34,10 @@ registerPaint('border-colors', class {
     const b = size.height;
     const l = 0;
 
-    const tw = styleMap.get('--border-top-width').value;
-    const rw = styleMap.get('--border-right-width').value;
-    const bw = styleMap.get('--border-bottom-width').value;
-    const lw = styleMap.get('--border-left-width').value;
+    const tw = styleMap.get('--border-top-width').toString();
+    const rw = styleMap.get('--border-right-width').toString();
+    const bw = styleMap.get('--border-bottom-width').toString();
+    const lw = styleMap.get('--border-left-width').toString();
 
     const ti = tw;
     const ri = size.width - rw;
@@ -52,12 +52,10 @@ registerPaint('border-colors', class {
       lp = lw / colors.length;
     }
 
-    console.log(styleMap.getAll('--border-top-color'));
-
     colors = styleMap.getAll('--border-top-color');
     updateProgression();
     for (let i = 0; i < colors.length; i++) {
-      ctx.fillStyle = colors[i].cssText;
+      ctx.fillStyle = colors[i].toString();
       this.fillQuad(ctx,
           li - lp * i, ti - tp * i,
           li - lp * (i+1), ti - tp * (i+1),
@@ -68,7 +66,7 @@ registerPaint('border-colors', class {
     colors = styleMap.getAll('--border-right-color');
     updateProgression();
     for (let i = 0; i < colors.length; i++) {
-      ctx.fillStyle = colors[i].cssText;
+      ctx.fillStyle = colors[i].toString();
       this.fillQuad(ctx,
           ri + rp * i, ti - tp * i,
           ri + rp * (i+1), ti - tp * (i+1),
@@ -79,7 +77,7 @@ registerPaint('border-colors', class {
     colors = styleMap.getAll('--border-bottom-color');
     updateProgression();
     for (let i = 0; i < colors.length; i++) {
-      ctx.fillStyle = colors[i].cssText;
+      ctx.fillStyle = colors[i].toString();
       this.fillQuad(ctx,
           ri + rp * i, bi + bp * i,
           ri + rp * (i+1), bi + bp * (i+1),
@@ -90,7 +88,7 @@ registerPaint('border-colors', class {
     colors = styleMap.getAll('--border-left-color');
     updateProgression();
     for (let i = 0; i < colors.length; i++) {
-      ctx.fillStyle = colors[i].cssText;
+      ctx.fillStyle = colors[i].toString();
       this.fillQuad(ctx,
           li - lp * i, bi + bp * i,
           li - lp * (i+1), bi + bp * (i+1),
