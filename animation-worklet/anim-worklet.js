@@ -99,21 +99,21 @@ limitations under the License.
       }
 
       attach(animation) {
-        var index = animation.additionalTimelines_.indexOf(this);
+        var mainThreadInstance = workletInstanceMap.get(animation);
+        var index = mainThreadInstance.additionalTimelines_.indexOf(this);
         if (index != -1)
           return;
-        var mainThreadInstance = workletInstanceMap.get(animation);
         this.attachInternal_(mainThreadInstance);
-        animation.additionalTimelines_.push(this);
+        mainThreadInstance.additionalTimelines_.push(this);
       }
 
       detach(animation) {
-        var index = animation.additionalTimelines_.lastIndexOf(this);
+        var mainThreadInstance = workletInstanceMap.get(animation);
+        var index = mainThreadInstance.additionalTimelines_.lastIndexOf(this);
         if (index == -1)
           return;
-        var mainThreadInstance = workletInstanceMap.get(animation);
         this.detachInternal_(mainThreadInstance);
-        animation.additionalTimelines_.splice(index, 1);
+        mainThreadInstance.additionalTimelines_.splice(index, 1);
       }
 
       attachInternal_(animation, isPrimary) {
@@ -267,6 +267,8 @@ limitations under the License.
         this.options = options;
         this.needsUpdate_ = false;
         this.instance_ = null;
+        // This stores additional timelines which have been attached.
+        this.additionalTimelines_ = []
         if (ctors[name]) {
           this.constructInstance_(ctors[name]);
         } else {
@@ -314,8 +316,6 @@ limitations under the License.
         // Save a map from instance back to this worklet animation without
         // exposing it to the user script.
         workletInstanceMap.set(this.instance_, this);
-        // This stores additional timelines which have been attached.
-        this.instance_.additionalTimelines_ = []
         if (this.playState == 'pending') {
           this.playState = 'running';
           this.setNeedsUpdate_();
@@ -340,8 +340,8 @@ limitations under the License.
             break;
           }
         }
-        for (var i = 0; i < this.instance_.additionalTimelines_.length; i++) {
-          if (this.instance_.additionalTimelines_[i] instanceof DocumentTimeline) {
+        for (var i = 0; i < this.additionalTimelines_.length; i++) {
+          if (this.additionalTimelines_[i] instanceof DocumentTimeline) {
             this.setNeedsUpdate_();
             break;
           }
