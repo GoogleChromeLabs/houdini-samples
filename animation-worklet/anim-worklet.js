@@ -303,10 +303,15 @@ limitations under the License.
         for (var i = 0; i < this.timelines.length; i++) {
           this.timelines[i].detachInternal_(this);
         }
+        for (var i = this.additionalTimelines_.length - 1; i >= 0; --i) {
+          this.additionalTimelines_[i].detachInternal_(this);
+        }
+        this.additionalTimelines_ = [];
         for (var i = 0; i < this.effects.length; i++) {
-          this.effects[i]._target.style.willChange = '';
+          this.effects[i].effect_._target.style.willChange = '';
         }
         this.playState = 'idle';
+        delete this.instance_;
         if (this.needsUpdate_);
           cancelUpdateAnimation(this);
       }
