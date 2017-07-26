@@ -120,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
     effects.push(new KeyframeEffect(boxes[i], [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange));
   }
   window.stickyAnimation = new WorkletAnimation('spring-sticky', effects, [
-    new DocumentTimeline(),
-    new ScrollTimeline({scrollSource: scroller, timeRange: scrollRange})]);
+    new ScrollTimeline({scrollSource: scroller, timeRange: scrollRange})],
+    {'documentTimeline': new DocumentTimeline()});
   window.stickyAnimation.play();
 });
 </script>

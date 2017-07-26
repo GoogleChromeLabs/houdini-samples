@@ -42,6 +42,7 @@ limitations under the License.
       });
     }
 
+    var workletInstanceMap = new WeakMap();
     var ctors = {};
     // This is invoked in the worklet to register |name|.
     scope.registerAnimator = function(name, ctor) {
@@ -83,14 +84,68 @@ limitations under the License.
       }
     }
 
-    class DocumentTimeline {
-      constructor(options) {
-        this.originTime = options && options.originTime || 0;
+    class AbstractTimeline {
+      constructor() {
         this.animations_ = [];
+        this.currentTime = 0;
+      }
+
+      set currentTime(val) {
+        this.currentTime_ = val;
+      }
+
+      get currentTime() {
+        return this.currentTime_;
+      }
+
+      attach(animation) {
+        var index = animation.additionalTimelines_.indexOf(this);
+        if (index != -1)
+          return;
+        var mainThreadInstance = workletInstanceMap.get(animation);
+        this.attachInternal_(mainThreadInstance);
+        animation.additionalTimelines_.push(this);
+      }
+
+      detach(animation) {
+        var index = animation.additionalTimelines_.lastIndexOf(this);
+        if (index == -1)
+          return;
+        var mainThreadInstance = workletInstanceMap.get(animation);
+        this.detachInternal_(mainThreadInstance);
+        animation.additionalTimelines_.splice(index, 1);
+      }
+
+      attachInternal_(animation, isPrimary) {
+        this.animations_.push(animation);
+      }
+
+      detachInternal_(animation, isPrimary) {
+        var index = this.animations_.lastIndexOf(animation);
+        if (index == -1)
+          return false;
+        this.animations_.splice(index, 1);
+        return true;
+      }
+
+      setAnimationsNeedUpdate_() {
+        for (var i = 0; i < this.animations_.length; i++) {
+          this.animations_[i].setNeedsUpdate_();
+        }
+      }
+    }
+
+    class DocumentTimeline extends AbstractTimeline {
+      constructor(options) {
+        super();
+        this.originTime = options && options.originTime || 0;
       }
 
       get currentTime() {
         return Math.max(0, rafTime - this.originTime);
+      }
+
+      set currentTime(val) {
       }
     }
 
@@ -145,8 +200,9 @@ limitations under the License.
       return document.scrollingElement;
     }
 
-    class ScrollTimeline {
+    class ScrollTimeline extends AbstractTimeline {
       constructor(options) {
+        super();
         this.scrollSource_ = options.scrollSource;
         // TODO(flackr): Use requested orientation instead of assuming vertical.
         this.orientation_ = options.orientation || 'auto';
@@ -155,7 +211,6 @@ limitations under the License.
         // TODO(flackr): Compute auto timerange from the length of the "animation"?
         this.timeRange_ = (!options.timeRange || options.timeRange == 'auto') ? 1 : options.timeRange;
         this.fill_ = options.fill;
-        this.animations_ = [];
         this.currentTime = 0;
         this.updateTime_();
         this.scrollSource_.addEventListener('scroll', this.onScroll_.bind(this));
@@ -178,9 +233,7 @@ limitations under the License.
       onScroll_() {
         if (!this.needsUpdate_())
           return false;
-        for (var i = 0; i < this.animations_.length; i++) {
-          this.animations_[i].setNeedsUpdate_();
-        }
+        this.setAnimationsNeedUpdate_();
       }
     }
 
@@ -228,7 +281,7 @@ limitations under the License.
         // Inform the timelines to invalidate this animation and set needs
         // update.
         for (var i = 0; i < this.timelines.length; i++) {
-          this.timelines[i].animations_.push(this);
+          this.timelines[i].attachInternal_(this);
         }
         // Set will-change on all of the animated properties.
         for (var i = 0; i < this.effects.length; i++) {
@@ -246,7 +299,7 @@ limitations under the License.
 
       cancel() {
         for (var i = 0; i < this.timelines.length; i++) {
-          this.timelines[i].animations_.splice(this.timelines[i].animations_.indexOf(this), 1);
+          this.timelines[i].detachInternal_(this);
         }
         for (var i = 0; i < this.effects.length; i++) {
           this.effects[i]._target.style.willChange = '';
@@ -258,6 +311,11 @@ limitations under the License.
 
       constructInstance_(ctor) {
         this.instance_ = new ctor(this.options);
+        // Save a map from instance back to this worklet animation without
+        // exposing it to the user script.
+        workletInstanceMap.set(this.instance_, this);
+        // This stores additional timelines which have been attached.
+        this.instance_.additionalTimelines_ = []
         if (this.playState == 'pending') {
           this.playState = 'running';
           this.setNeedsUpdate_();
@@ -278,6 +336,12 @@ limitations under the License.
         // next frame.
         for (var i = 0; i < this.timelines.length; i++) {
           if (this.timelines[i] instanceof DocumentTimeline) {
+            this.setNeedsUpdate_();
+            break;
+          }
+        }
+        for (var i = 0; i < this.instance_.additionalTimelines_.length; i++) {
+          if (this.instance_.additionalTimelines_[i] instanceof DocumentTimeline) {
             this.setNeedsUpdate_();
             break;
           }
