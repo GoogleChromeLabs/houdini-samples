@@ -51,7 +51,7 @@ limitations under the License.
       var range = options[options.length - 1].target * 2;
       effects.push(new KeyframeEffect(elems[i], [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range));
     }
-    window.springAnimation = new WorkletAnimation('spring', effects, [new DocumentTimeline()], options);
+    window.springAnimation = new WorkletAnimation('spring', effects, new DocumentTimeline(), options);
     window.springAnimation.play();
   });
 </script>

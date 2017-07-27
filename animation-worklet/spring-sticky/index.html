@@ -119,8 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
   for (var i = 0; i < boxes.length; i++) {
     effects.push(new KeyframeEffect(boxes[i], [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange));
   }
-  window.stickyAnimation = new WorkletAnimation('spring-sticky', effects, [
-    new ScrollTimeline({scrollSource: scroller, timeRange: scrollRange})],
+  window.stickyAnimation = new WorkletAnimation('spring-sticky', effects,
+    new ScrollTimeline({scrollSource: scroller, timeRange: scrollRange}),
     {'documentTimeline': new DocumentTimeline()});
   window.stickyAnimation.play();
 });

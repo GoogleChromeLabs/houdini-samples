@@ -67,12 +67,10 @@ limitations under the License.
               new KeyframeEffect(avatar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
               new KeyframeEffect(bar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
               new KeyframeEffect(barSection, [{'opacity': 0}, {'opacity': 1}], {duration: 144, fill: 'both'}),
-            ], [
-              new ScrollTimeline({scrollSource: scroller, orientation: 'vertical'}),
-              new ScrollTimeline({scrollSource: scroller, orientation: 'vertical',
-                  endScrollOffset: '144px', timeRange: 144})
-            ], {
-              scrollRange: scrollRange
+            ], new ScrollTimeline({scrollSource: scroller, orientation: 'vertical'}), {
+              avatarTimeline: new ScrollTimeline({scrollSource: scroller, orientation: 'vertical',
+                  endScrollOffset: '144px', timeRange: 144}),
+              scrollRange: scrollRange,
             });
           window.twitterAnimation.play();
         });

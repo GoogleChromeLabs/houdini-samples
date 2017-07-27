@@ -16,18 +16,19 @@ limitations under the License.
 registerAnimator('twitter-header', class TwitterHeader {
   constructor(options) {
     this.options = options;
+    this.options.avatarTimeline.attach(this);
   }
 
-  animate(timelines, effects) {
-    var scrollPos = timelines[0].currentTime * this.options.scrollRange;
+  animate(timeline, effects) {
+    var scrollPos = timeline.currentTime * this.options.scrollRange;
     // Avatar scale
-    effects[0].localTime = timelines[1].currentTime;
+    effects[0].localTime = this.options.avatarTimeline.currentTime;
     // Avatar position
     effects[1].localTime = scrollPos > 189 - 45 * 0.6 ?
         scrollPos - (189 - 45 * 0.6) + 45 : 45;
     // Header bar position
     effects[2].localTime = scrollPos;
     // Header bar opacity
-    effects[3].localTime = timelines[1].currentTime;
+    effects[3].localTime = this.options.avatarTimeline.currentTime;
   }
 });

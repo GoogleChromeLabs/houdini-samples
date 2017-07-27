@@ -99,15 +99,35 @@ limitations under the License.
       }
 
       attach(animation) {
+        // Because attach can be called from the constructor we may not have
+        // stored the worklet entry in the WeakMap yet so we run this after a
+        // timeout.
+        setTimeout(this.attachAdditionalTimelineInternal_.bind(this, animation), 0);
+      }
+
+      detach(animation) {
+        // Because detach can be called from the constructor we may not have
+        // stored the worklet entry in the WeakMap yet so we run this after a
+        // timeout.
+        setTimeout(this.detachAdditionalTimelineInternal_.bind(this, animation), 0);
+      }
+
+      attachAdditionalTimelineInternal_(animation) {
         var mainThreadInstance = workletInstanceMap.get(animation);
         var index = mainThreadInstance.additionalTimelines_.indexOf(this);
         if (index != -1)
           return;
         this.attachInternal_(mainThreadInstance);
         mainThreadInstance.additionalTimelines_.push(this);
+
+        // Attaching to most timelines should not cause an immediate update, but
+        // if this is the first DocumentTimeline attached to the animation it
+        // may need to schedule an animation frame.
+        if (animation instanceof DocumentTimeline)
+          animation.setNeedsUpdate_();
       }
 
-      detach(animation) {
+      detachAdditionalTimelineInternal_(animation) {
         var mainThreadInstance = workletInstanceMap.get(animation);
         var index = mainThreadInstance.additionalTimelines_.lastIndexOf(this);
         if (index == -1)
@@ -260,10 +280,10 @@ limitations under the License.
     }
 
     class WorkletAnimation {
-      constructor(name, effects, timelines, options) {
+      constructor(name, effects, timeline, options) {
         this.playState = 'idle';
         this.effects = effects;
-        this.timelines = timelines;
+        this.timeline = timeline;
         this.options = options;
         this.needsUpdate_ = false;
         this.instance_ = null;
@@ -282,9 +302,9 @@ limitations under the License.
       play() {
         // Inform the timelines to invalidate this animation and set needs
         // update.
-        for (var i = 0; i < this.timelines.length; i++) {
-          this.timelines[i].attachInternal_(this);
-        }
+        if (this.timeline)
+          this.timeline.attachInternal_(this);
+
         // Set will-change on all of the animated properties.
         for (var i = 0; i < this.effects.length; i++) {
           this.effects[i].effect_._target.style.willChange = this.effects[i].willChange_;
@@ -300,9 +320,9 @@ limitations under the License.
       }
 
       cancel() {
-        for (var i = 0; i < this.timelines.length; i++) {
-          this.timelines[i].detachInternal_(this);
-        }
+        if (this.timeline)
+          this.timeline.detachInternal_(this);
+
         for (var i = this.additionalTimelines_.length - 1; i >= 0; --i) {
           this.additionalTimelines_[i].detachInternal_(this);
         }
@@ -335,16 +355,12 @@ limitations under the License.
       }
 
       updateAnimation_() {
-        this.instance_.animate(this.timelines, this.effects);
+        this.instance_.animate(this.timeline, this.effects);
         this.needsUpdate_ = false;
         // If this animation has any document timelines it will need an update
         // next frame.
-        for (var i = 0; i < this.timelines.length; i++) {
-          if (this.timelines[i] instanceof DocumentTimeline) {
-            this.setNeedsUpdate_();
-            break;
-          }
-        }
+        if (this.timeline instanceof DocumentTimeline)
+          this.setNeedsUpdate_();
         for (var i = 0; i < this.additionalTimelines_.length; i++) {
           if (this.additionalTimelines_[i] instanceof DocumentTimeline) {
             this.setNeedsUpdate_();

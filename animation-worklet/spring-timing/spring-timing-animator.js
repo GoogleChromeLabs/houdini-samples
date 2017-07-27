@@ -18,8 +18,7 @@ registerAnimator('spring', class SpringAnimator {
     this.options = options;
   }
 
-  animate(timelines, effects) {
-    var timeline = timelines[0];
+  animate(timeline, effects) {
     for (var i = 0; i < effects.length; i++) {
       var e = effects[i];
       var params =this.options[i];

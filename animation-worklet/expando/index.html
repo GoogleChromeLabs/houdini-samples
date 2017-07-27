@@ -89,7 +89,7 @@ limitations under the License.
         new KeyframeEffect(offset, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + (0.5 * expando.clientWidth * (expandScale - 1)) + 'px)'}], effectOptions),
         new KeyframeEffect(smallContent, [{'opacity': 1}, {'opacity': 0}], effectOptions),
         new KeyframeEffect(largeContent, [{'opacity': 0}, {'opacity': 1}], effectOptions),
-      ], [new DocumentTimeline()], {'expandScale': expandScale});
+      ], new DocumentTimeline(), {'expandScale': expandScale});
     window.expandoAnimator.play();
   });
 </script>
