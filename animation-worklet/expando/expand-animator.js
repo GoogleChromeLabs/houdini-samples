@@ -18,7 +18,7 @@ registerAnimator('expand', class ExpandAnimator {
     this.options = options;
   }
 
-  animate(currentTime, effects) {
+  animate(currentTime, effect) {
     // TODO(flackr): Control transition through input.
     // TODO(flackr): Use non-linear transition.
     var repeatTime = currentTime * 0.001 % 5;
@@ -30,11 +30,11 @@ registerAnimator('expand', class ExpandAnimator {
     else
       t = 1;
 
-    var clip = effects[0];
-    var content = effects[1];
-    var offset = effects[2];
-    var small = effects[3];
-    var large = effects[4];
+    var clip = effect.children[0];
+    var content = effect.children[1];
+    var offset = effect.children[2];
+    var small = effect.children[3];
+    var large = effect.children[4];
     var expandScale = this.options.expandScale;
     var scale = (expandScale - 1) * t + 1;
 

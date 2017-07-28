@@ -19,16 +19,16 @@ registerAnimator('twitter-header', class TwitterHeader {
     this.options.avatarTimeline.attach(this);
   }
 
-  animate(currentTime, effects) {
+  animate(currentTime, effect) {
     var scrollPos = currentTime * this.options.scrollRange;
     // Avatar scale
-    effects[0].localTime = this.options.avatarTimeline.currentTime;
+    effect.children[0].localTime = this.options.avatarTimeline.currentTime;
     // Avatar position
-    effects[1].localTime = scrollPos > 189 - 45 * 0.6 ?
+    effect.children[1].localTime = scrollPos > 189 - 45 * 0.6 ?
         scrollPos - (189 - 45 * 0.6) + 45 : 45;
     // Header bar position
-    effects[2].localTime = scrollPos;
+    effect.children[2].localTime = scrollPos;
     // Header bar opacity
-    effects[3].localTime = this.options.avatarTimeline.currentTime;
+    effect.children[3].localTime = this.options.avatarTimeline.currentTime;
   }
 });

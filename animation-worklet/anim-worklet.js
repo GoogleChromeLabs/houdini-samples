@@ -279,10 +279,16 @@ limitations under the License.
       }
     }
 
+    class WorkletGroupEffect {
+      constructor(effects) {
+        this.children = effects;
+      }
+    }
+
     class WorkletAnimation {
       constructor(name, effects, timeline, options) {
         this.playState = 'idle';
-        this.effects = effects;
+        this.effect = effects instanceof Array ? new WorkletGroupEffect(effects) : effects;
         this.timeline = timeline;
         this.options = options;
         this.needsUpdate_ = false;
@@ -306,8 +312,9 @@ limitations under the License.
           this.timeline.attachInternal_(this);
 
         // Set will-change on all of the animated properties.
-        for (var i = 0; i < this.effects.length; i++) {
-          this.effects[i].effect_._target.style.willChange = this.effects[i].willChange_;
+        var effects = this.effects_();
+        for (var i = 0; i < effects.length; i++) {
+          effects[i].effect_._target.style.willChange = effects[i].willChange_;
         }
         if (this.instance_) {
           // TODO(flackr): Maybe this should go through pending state until the
@@ -327,8 +334,9 @@ limitations under the License.
           this.additionalTimelines_[i].detachInternal_(this);
         }
         this.additionalTimelines_ = [];
-        for (var i = 0; i < this.effects.length; i++) {
-          this.effects[i].effect_._target.style.willChange = '';
+        var effects = this.effects_();
+        for (var i = 0; i < effects.length; i++) {
+          effects[i].effect_._target.style.willChange = '';
         }
         this.playState = 'idle';
         delete this.instance_;
@@ -347,6 +355,12 @@ limitations under the License.
         }
       }
 
+      effects_() {
+        if (this.effect instanceof WorkletGroupEffect)
+          return this.effect.children;
+        return [this.effect];
+      }
+
       setNeedsUpdate_() {
         if (this.playState != 'running' ||
             this.needsUpdate_) return;
@@ -355,7 +369,7 @@ limitations under the License.
       }
 
       updateAnimation_() {
-        this.instance_.animate(this.timeline.currentTime, this.effects);
+        this.instance_.animate(this.timeline.currentTime, this.effect);
         this.needsUpdate_ = false;
         // If this animation has any document timelines it will need an update
         // next frame.
