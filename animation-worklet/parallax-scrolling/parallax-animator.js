@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 registerAnimator('parallax', class ParallaxAnimator {
-  animate(timeline, effects) {
-    effects[0].localTime = 200 * timeline.currentTime;
+  animate(currentTime, effects) {
+    effects[0].localTime = 200 * currentTime;
   }
 });

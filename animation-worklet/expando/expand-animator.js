@@ -18,10 +18,10 @@ registerAnimator('expand', class ExpandAnimator {
     this.options = options;
   }
 
-  animate(timeline, effects) {
+  animate(currentTime, effects) {
     // TODO(flackr): Control transition through input.
     // TODO(flackr): Use non-linear transition.
-    var repeatTime = timeline.currentTime * 0.001 % 5;
+    var repeatTime = currentTime * 0.001 % 5;
     var t = 0;
     if (repeatTime < 2)
       t = Math.max(0, repeatTime - 1);

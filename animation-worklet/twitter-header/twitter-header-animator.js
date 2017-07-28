@@ -19,8 +19,8 @@ registerAnimator('twitter-header', class TwitterHeader {
     this.options.avatarTimeline.attach(this);
   }
 
-  animate(timeline, effects) {
-    var scrollPos = timeline.currentTime * this.options.scrollRange;
+  animate(currentTime, effects) {
+    var scrollPos = currentTime * this.options.scrollRange;
     // Avatar scale
     effects[0].localTime = this.options.avatarTimeline.currentTime;
     // Avatar position

@@ -20,7 +20,7 @@ registerAnimator('spring-sticky', class SpringAnimator {
     this.documentTimeline = options.documentTimeline;
   }
 
-  animate(timeline, effects) {
+  animate(currentTime, effects) {
     // Attach to the document timeline whenever a scroll happens.
     this.documentTimeline.attach(this);
     var boxes = effects;
@@ -33,7 +33,7 @@ registerAnimator('spring-sticky', class SpringAnimator {
         this.positions.push(0);
       }
     }
-    var targetPos = timeline.currentTime;
+    var targetPos = currentTime;
     var changed = false;
     for (var i = 0; i < boxes.length; i++) {
       if (i == 0) {

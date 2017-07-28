@@ -355,7 +355,7 @@ limitations under the License.
       }
 
       updateAnimation_() {
-        this.instance_.animate(this.timeline, this.effects);
+        this.instance_.animate(this.timeline.currentTime, this.effects);
         this.needsUpdate_ = false;
         // If this animation has any document timelines it will need an update
         // next frame.
