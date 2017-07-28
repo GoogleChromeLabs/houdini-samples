@@ -17,9 +17,12 @@ registerAnimator('spring-sticky', class SpringAnimator {
   constructor(options) {
     this.velocities = [];
     this.positions = [];
+    this.documentTimeline = options.documentTimeline;
   }
 
-  animate(timelines, effects) {
+  animate(currentTime, effects) {
+    // Attach to the document timeline whenever a scroll happens.
+    this.documentTimeline.attach(this);
     var boxes = effects;
     if (boxes.length != this.velocities.length) {
       // If number of elements change, stored state is no longer correct.
@@ -30,21 +33,28 @@ registerAnimator('spring-sticky', class SpringAnimator {
         this.positions.push(0);
       }
     }
-    var targetPos = timelines[1].currentTime;
+    var targetPos = currentTime;
+    var changed = false;
     for (var i = 0; i < boxes.length; i++) {
       if (i == 0) {
         // Box 0 stays stuck.
-        this.positions[i] = targetPos;
+        boxes[i].localTime = this.positions[i] = targetPos;
       } else {
         var delta = Math.max(-20, Math.min(20, targetPos - this.positions[i]));
         this.velocities[i] = this.velocities[i] * 0.95 + delta * 0.05;
-        this.positions[i] += this.velocities[i];
         // Positions cannot stretch, but can collapse.
-        this.positions[i] = Math.max(targetPos - 100, Math.min(targetPos, this.positions[i]));
+        var newPosition = Math.max(targetPos - 100, Math.min(targetPos, this.positions[i] + this.velocities[i]));
+        if (newPosition != this.positions[i]) {
+          boxes[i].localTime = this.positions[i] = newPosition;
+          changed = true;
+        }
       }
-      boxes[i].localTime = this.positions[i];
       targetPos = this.positions[i];
     }
+    // If the animation has reached a stable state we no longer need to stay
+    // attached to the document timeline.
+    if (!changed)
+      this.documentTimeline.detach(this);
   }
 
 });

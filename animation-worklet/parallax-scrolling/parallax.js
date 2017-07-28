@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var scrollRange = scroller.scrollHeight - scroller.clientHeight;
     window.parallaxAnimator = new WorkletAnimation('parallax',
         [new KeyframeEffect(parallax, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + -scrollRange + 'px)'}], scrollRange)],
-        [new ScrollTimeline({scrollSource: scroller, orientation: 'vertical'})]);
+        new ScrollTimeline({scrollSource: scroller, orientation: 'vertical'}));
     window.parallaxAnimator.play();
   }
 });

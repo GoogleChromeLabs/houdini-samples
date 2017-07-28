@@ -18,8 +18,7 @@ registerAnimator('spring', class SpringAnimator {
     this.options = options;
   }
 
-  animate(timelines, effects) {
-    var timeline = timelines[0];
+  animate(currentTime, effects) {
     for (var i = 0; i < effects.length; i++) {
       var e = effects[i];
       var params =this.options[i];
@@ -28,12 +27,12 @@ registerAnimator('spring', class SpringAnimator {
         const k = params.k;
         const ratio = Math.min(params.ratio, 1 - 1e-5);
 
-        e.startTime_ = timeline.currentTime;
+        e.startTime_ = currentTime;
         e.springTiming_ = this.spring(k, ratio);
       }
       const target = params.target;
       // TODO(majidvp): stop computing a new value once we are withing a certainer threshold of the target.
-      const dt_seconds = (timeline.currentTime - e.startTime_) / 1000;
+      const dt_seconds = (currentTime - e.startTime_) / 1000;
       const dv = target * e.springTiming_(dt_seconds);
 
       e.localTime = dv;

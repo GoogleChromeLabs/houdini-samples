@@ -42,6 +42,7 @@ limitations under the License.
       });
     }
 
+    var workletInstanceMap = new WeakMap();
     var ctors = {};
     // This is invoked in the worklet to register |name|.
     scope.registerAnimator = function(name, ctor) {
@@ -83,14 +84,88 @@ limitations under the License.
       }
     }
 
-    class DocumentTimeline {
-      constructor(options) {
-        this.originTime = options && options.originTime || 0;
+    class AbstractTimeline {
+      constructor() {
         this.animations_ = [];
+        this.currentTime = 0;
+      }
+
+      set currentTime(val) {
+        this.currentTime_ = val;
+      }
+
+      get currentTime() {
+        return this.currentTime_;
+      }
+
+      attach(animation) {
+        // Because attach can be called from the constructor we may not have
+        // stored the worklet entry in the WeakMap yet so we run this after a
+        // timeout.
+        setTimeout(this.attachAdditionalTimelineInternal_.bind(this, animation), 0);
+      }
+
+      detach(animation) {
+        // Because detach can be called from the constructor we may not have
+        // stored the worklet entry in the WeakMap yet so we run this after a
+        // timeout.
+        setTimeout(this.detachAdditionalTimelineInternal_.bind(this, animation), 0);
+      }
+
+      attachAdditionalTimelineInternal_(animation) {
+        var mainThreadInstance = workletInstanceMap.get(animation);
+        var index = mainThreadInstance.additionalTimelines_.indexOf(this);
+        if (index != -1)
+          return;
+        this.attachInternal_(mainThreadInstance);
+        mainThreadInstance.additionalTimelines_.push(this);
+
+        // Attaching to most timelines should not cause an immediate update, but
+        // if this is the first DocumentTimeline attached to the animation it
+        // may need to schedule an animation frame.
+        if (animation instanceof DocumentTimeline)
+          animation.setNeedsUpdate_();
+      }
+
+      detachAdditionalTimelineInternal_(animation) {
+        var mainThreadInstance = workletInstanceMap.get(animation);
+        var index = mainThreadInstance.additionalTimelines_.lastIndexOf(this);
+        if (index == -1)
+          return;
+        this.detachInternal_(mainThreadInstance);
+        mainThreadInstance.additionalTimelines_.splice(index, 1);
+      }
+
+      attachInternal_(animation, isPrimary) {
+        this.animations_.push(animation);
+      }
+
+      detachInternal_(animation, isPrimary) {
+        var index = this.animations_.lastIndexOf(animation);
+        if (index == -1)
+          return false;
+        this.animations_.splice(index, 1);
+        return true;
+      }
+
+      setAnimationsNeedUpdate_() {
+        for (var i = 0; i < this.animations_.length; i++) {
+          this.animations_[i].setNeedsUpdate_();
+        }
+      }
+    }
+
+    class DocumentTimeline extends AbstractTimeline {
+      constructor(options) {
+        super();
+        this.originTime = options && options.originTime || 0;
       }
 
       get currentTime() {
         return Math.max(0, rafTime - this.originTime);
+      }
+
+      set currentTime(val) {
       }
     }
 
@@ -145,8 +220,9 @@ limitations under the License.
       return document.scrollingElement;
     }
 
-    class ScrollTimeline {
+    class ScrollTimeline extends AbstractTimeline {
       constructor(options) {
+        super();
         this.scrollSource_ = options.scrollSource;
         // TODO(flackr): Use requested orientation instead of assuming vertical.
         this.orientation_ = options.orientation || 'auto';
@@ -155,7 +231,6 @@ limitations under the License.
         // TODO(flackr): Compute auto timerange from the length of the "animation"?
         this.timeRange_ = (!options.timeRange || options.timeRange == 'auto') ? 1 : options.timeRange;
         this.fill_ = options.fill;
-        this.animations_ = [];
         this.currentTime = 0;
         this.updateTime_();
         this.scrollSource_.addEventListener('scroll', this.onScroll_.bind(this));
@@ -178,9 +253,7 @@ limitations under the License.
       onScroll_() {
         if (!this.needsUpdate_())
           return false;
-        for (var i = 0; i < this.animations_.length; i++) {
-          this.animations_[i].setNeedsUpdate_();
-        }
+        this.setAnimationsNeedUpdate_();
       }
     }
 
@@ -207,13 +280,15 @@ limitations under the License.
     }
 
     class WorkletAnimation {
-      constructor(name, effects, timelines, options) {
+      constructor(name, effects, timeline, options) {
         this.playState = 'idle';
         this.effects = effects;
-        this.timelines = timelines;
+        this.timeline = timeline;
         this.options = options;
         this.needsUpdate_ = false;
         this.instance_ = null;
+        // This stores additional timelines which have been attached.
+        this.additionalTimelines_ = []
         if (ctors[name]) {
           this.constructInstance_(ctors[name]);
         } else {
@@ -227,9 +302,9 @@ limitations under the License.
       play() {
         // Inform the timelines to invalidate this animation and set needs
         // update.
-        for (var i = 0; i < this.timelines.length; i++) {
-          this.timelines[i].animations_.push(this);
-        }
+        if (this.timeline)
+          this.timeline.attachInternal_(this);
+
         // Set will-change on all of the animated properties.
         for (var i = 0; i < this.effects.length; i++) {
           this.effects[i].effect_._target.style.willChange = this.effects[i].willChange_;
@@ -245,19 +320,27 @@ limitations under the License.
       }
 
       cancel() {
-        for (var i = 0; i < this.timelines.length; i++) {
-          this.timelines[i].animations_.splice(this.timelines[i].animations_.indexOf(this), 1);
+        if (this.timeline)
+          this.timeline.detachInternal_(this);
+
+        for (var i = this.additionalTimelines_.length - 1; i >= 0; --i) {
+          this.additionalTimelines_[i].detachInternal_(this);
         }
+        this.additionalTimelines_ = [];
         for (var i = 0; i < this.effects.length; i++) {
-          this.effects[i]._target.style.willChange = '';
+          this.effects[i].effect_._target.style.willChange = '';
         }
         this.playState = 'idle';
+        delete this.instance_;
         if (this.needsUpdate_);
           cancelUpdateAnimation(this);
       }
 
       constructInstance_(ctor) {
         this.instance_ = new ctor(this.options);
+        // Save a map from instance back to this worklet animation without
+        // exposing it to the user script.
+        workletInstanceMap.set(this.instance_, this);
         if (this.playState == 'pending') {
           this.playState = 'running';
           this.setNeedsUpdate_();
@@ -272,12 +355,14 @@ limitations under the License.
       }
 
       updateAnimation_() {
-        this.instance_.animate(this.timelines, this.effects);
+        this.instance_.animate(this.timeline.currentTime, this.effects);
         this.needsUpdate_ = false;
         // If this animation has any document timelines it will need an update
         // next frame.
-        for (var i = 0; i < this.timelines.length; i++) {
-          if (this.timelines[i] instanceof DocumentTimeline) {
+        if (this.timeline instanceof DocumentTimeline)
+          this.setNeedsUpdate_();
+        for (var i = 0; i < this.additionalTimelines_.length; i++) {
+          if (this.additionalTimelines_[i] instanceof DocumentTimeline) {
             this.setNeedsUpdate_();
             break;
           }
