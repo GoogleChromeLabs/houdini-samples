@@ -18,9 +18,9 @@ registerAnimator('spring', class SpringAnimator {
     this.options = options;
   }
 
-  animate(currentTime, effects) {
-    for (var i = 0; i < effects.length; i++) {
-      var e = effects[i];
+  animate(currentTime, effect) {
+    for (var i = 0; i < effect.children.length; i++) {
+      var e = effect.children[i];
       var params =this.options[i];
       if (!e.springTiming_)  {
         // initialize the simulation.
