@@ -1,6 +1,6 @@
 # Animation Worklet Samples
 
-Samples for the AnimationWorklet specification of the [Houdini task force].
+Samples for the [AnimationWorklet specification](https://wicg.github.io/animation-worklet/) of the [Houdini task force].
 
 [Houdini task force]: https://wiki.css-houdini.org/
 
