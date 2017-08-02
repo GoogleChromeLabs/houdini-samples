@@ -49,6 +49,7 @@ header {
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-end;
+  position: absolute;
 }
 .avatar {
   z-index: 2;

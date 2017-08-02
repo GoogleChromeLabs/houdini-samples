@@ -19,11 +19,6 @@ limitations under the License.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
   </head>
-  <style>
-    #scroller {
-      backface-visibility: hidden;
-    }
-  </style>
   <body>
     <div id="scroller">
       <header>
@@ -49,7 +44,7 @@ limitations under the License.
           var barHeight = bar.clientHeight;
           var scrollTimeline = new ScrollTimeline({ scrollSource: scroller, orientation: 'vertical' });
 
-          window.hideybarAnimation = new WorkletAnimation('hidey-bar', 
+          window.hideybarAnimation = new WorkletAnimation('hidey-bar',
             new KeyframeEffect(bar, [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(' + scrollRange + 'px)' }], scrollRange),
             scrollTimeline,
             { scrollRange: scrollRange, barHeight: barHeight, documentTimeline: new DocumentTimeline() });
