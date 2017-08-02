@@ -1,0 +1,93 @@
+/*
+Copyright 2016 Google, Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+* {
+  box-sizing: border-box;
+}
+html, body {
+  margin: 0;
+  border :0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+}
+#scroller {
+  width: 360px;
+  height: 567px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #black;
+  color: white;
+  border: 5px solid rgb(80, 80, 80);
+  border-radius: 5px;
+  position: relative;
+}
+header {
+  width: 100%;
+  height: 189px;
+  padding: 0 5px;
+  background: url('banner.jpg') 50% 50%/cover;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.avatar {
+  transform: translate(0, 45px);
+  z-index: 2;
+}
+.avatar > img {
+  width: 90px;
+  height: 90px;
+  border: 5px solid white;
+  border-radius: 15px;
+}
+.profilecontrols {
+  transform: translate(0, 45px);
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.profilecontrols > button {
+  height: 40px;
+  margin-left: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.27);
+  color: white;
+  background-color: transparent;
+  border-radius: 5px;
+}
+.profile {
+  margin-top: 45px;
+  padding: 10px;
+}
+.tweets {
+  padding: 10px;
+}
+.bar > section {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 50px;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.74);
+}
