@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-Copyright 2016 Google, Inc. All Rights Reserved.
+Copyright 2017 Google, Inc. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,10 +23,6 @@ limitations under the License.
     #scroller {
       backface-visibility: hidden;
     }
-    .avatar {
-    }
-    .bar {
-    }
   </style>
   <body>
     <div id="scroller">
@@ -45,22 +41,19 @@ limitations under the License.
       </section>
       <script src="../anim-worklet.js"></script>
       <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
           var scroller = document.getElementById('scroller');
           var bar = document.querySelector('header');
 
           var scrollRange = (scroller.scrollHeight - scroller.clientHeight);
           var barHeight = bar.clientHeight;
-
-
-          var scrollTimeline = new ScrollTimeline({scrollSource: scroller, orientation: 'vertical'});
+          var scrollTimeline = new ScrollTimeline({ scrollSource: scroller, orientation: 'vertical' });
 
           window.hideybarAnimation = new WorkletAnimation('hidey-bar', [
-              new KeyframeEffect(scroller, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
-              new KeyframeEffect(bar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
-            ],
+            new KeyframeEffect(scroller, [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(' + scrollRange + 'px)' }], scrollRange),
+            new KeyframeEffect(bar, [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(' + scrollRange + 'px)' }], scrollRange),],
             scrollTimeline,
-            {scrollRange: scrollRange, barHeight: barHeight,  documentTimeline: new DocumentTimeline()});
+            { scrollRange: scrollRange, barHeight: barHeight, documentTimeline: new DocumentTimeline() });
 
           window.hideybarAnimation.play();
         });

@@ -16,28 +16,62 @@ limitations under the License.
 registerAnimator('hidey-bar', class TwitterHeader {
   constructor(options) {
     this.options = options;
-    this.lastScrollPos = 0;
+    this.lastScrollPosition = 0;
+    this.headerPosition = 0;
+    this.frames = 0;
   }
 
   animate(currentTime, effect) {
-    var scrollPos = currentTime * this.options.scrollRange;
-
-    var isScrolling = scrollPos !== this.lastScrollPos;
-    var isDown = scrollPos - this.lastScrollPos > 0;
-
-    this.lastScrollPos = scrollPos;
-
-
-    if (isDown) {
-      //  scrolling down, let header move with the content
-
-      // clear baseline offset
-      this.baselineOffset = null;
+    var scrollPosition = currentTime * this.options.scrollRange;
+    var isScrolling = scrollPosition !== this.lastScrollPosition;
+    
+    if (isScrolling) {
+      this.scrollLinkedAnimation(scrollPosition);
     } else {
-      // scrolling up, reset baseline offset and maintain it
-      if (!this.baselineOffset)
-        this.baselineOffset = scrollPos - this.options.barHeight;
-      effect.children[1].localTime = Math.min(scrollPos, this.baselineOffset);
+      this.timeLinkedAnimation(scrollPosition);
+    }
+
+    effect.children[1].localTime = this.headerPosition;
+    this.lastScrollPosition = scrollPosition;
+  }
+
+  scrollLinkedAnimation(scrollPosition) {
+    var isUp = scrollPosition - this.lastScrollPosition <= 0;
+
+    // if we went from down -> up, reset the header position baseline.
+    if (isUp && !this.wasUp) 
+      this.headerPosition = scrollPosition - this.options.barHeight;
+
+    if (isUp) {
+      // scrolling up, move the header position with scroll so it appears fixed.
+      this.headerPosition = Math.min(scrollPosition, this.headerPosition);
+    } else {
+      // scrolling down, leave header position as is so it moves with content.
+    }
+
+    this.wasUp = isUp;
+  }
+
+  timeLinkedAnimation(scrollPosition) {
+    // attach document timeline so we keep ticking if scroll stops
+    this.options.documentTimeline.attach(this);
+
+    // wait a few frames before starting the timed animation
+    this.frames += 1;
+    if (this.frames <= 10)
+      return;
+
+    var gap = scrollPosition - this.headerPosition;
+    if (gap <= 0 || gap >=this.options.barHeight) {
+      // fully shown/hidden => no animation is needed, detach timeline
+      this.options.documentTimeline.detach(this);
+      this.frames = 0;
+    } else if (gap >= (this.options.barHeight / 2)) {
+      // animate to fully hidden
+      this.headerPosition -= 2;
+    } else {
+      // animate to fully shown
+      this.headerPosition += 2;
     }
   }
 });
