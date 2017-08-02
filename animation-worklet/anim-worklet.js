@@ -102,18 +102,25 @@ limitations under the License.
         // Because attach can be called from the constructor we may not have
         // stored the worklet entry in the WeakMap yet so we run this after a
         // timeout.
-        setTimeout(this.attachAdditionalTimelineInternal_.bind(this, animation), 0);
+        var mainThreadInstance = workletInstanceMap.get(animation);
+        if (mainThreadInstance)
+          this.attachAdditionalTimelineInternal_(animation, mainThreadInstance);
+        else
+          setTimeout(this.attach.bind(this, animation), 0);
       }
 
       detach(animation) {
         // Because detach can be called from the constructor we may not have
         // stored the worklet entry in the WeakMap yet so we run this after a
         // timeout.
-        setTimeout(this.detachAdditionalTimelineInternal_.bind(this, animation), 0);
+        var mainThreadInstance = workletInstanceMap.get(animation);
+        if (mainThreadInstance)
+          this.detachAdditionalTimelineInternal_(animation, mainThreadInstance);
+        else
+          setTimeout(this.detach.bind(this, animation), 0);
       }
 
-      attachAdditionalTimelineInternal_(animation) {
-        var mainThreadInstance = workletInstanceMap.get(animation);
+      attachAdditionalTimelineInternal_(animation, mainThreadInstance) {
         var index = mainThreadInstance.additionalTimelines_.indexOf(this);
         if (index != -1)
           return;
@@ -127,8 +134,7 @@ limitations under the License.
           animation.setNeedsUpdate_();
       }
 
-      detachAdditionalTimelineInternal_(animation) {
-        var mainThreadInstance = workletInstanceMap.get(animation);
+      detachAdditionalTimelineInternal_(animation, mainThreadInstance) {
         var index = mainThreadInstance.additionalTimelines_.lastIndexOf(this);
         if (index == -1)
           return;
@@ -220,6 +226,8 @@ limitations under the License.
       return document.scrollingElement;
     }
 
+    var SCROLL_IDLE_TIMEOUT = 150;
+
     class ScrollTimeline extends AbstractTimeline {
       constructor(options) {
         super();
@@ -231,9 +239,17 @@ limitations under the License.
         // TODO(flackr): Compute auto timerange from the length of the "animation"?
         this.timeRange_ = (!options.timeRange || options.timeRange == 'auto') ? 1 : options.timeRange;
         this.fill_ = options.fill;
+        this.trackPhase_ = !!options.phase;
+        this.phase = this.trackPhase_ ? 'idle' : undefined;
+        this.activeScrollEndTimer_ = null;
+        this.touchScrolling_ = false;
         this.currentTime = 0;
         this.updateTime_();
         this.scrollSource_.addEventListener('scroll', this.onScroll_.bind(this));
+        if (this.trackPhase_) {
+          this.scrollSource_.addEventListener('touchstart', this.onTouchStart_.bind(this), {'passive': true});
+          this.scrollSource_.addEventListener('touchend', this.onTouchEnd_.bind(this), {'passive': true});
+        }
       }
 
       updateTime_() {
@@ -250,8 +266,38 @@ limitations under the License.
         return oldTime != this.currentTime;
       }
 
+      onTouchStart_() {
+        this.touchScrolling_ = true;
+      }
+
+      onTouchEnd_() {
+        this.touchScrolling_ = false;
+        // We need to wait in case a fling has started, but if no more scroll events
+        // come we can consider the scroll to have ended.
+        this.startActiveScrollTimeout_();
+      }
+
+      startActiveScrollTimeout_() {
+        if (this.activeScrollEndTimer_)
+          clearTimeout(this.activeScrollEndTimer_);
+        this.activeScrollEndTimer_ = setTimeout(this.onScrollIdle_.bind(this), SCROLL_IDLE_TIMEOUT);
+      }
+
+      onScrollIdle_() {
+        this.activeScrollEndTimer_ = null;
+        this.phase = 'idle';
+        this.setAnimationsNeedUpdate_();
+      }
+
       onScroll_() {
-        if (!this.needsUpdate_())
+        var stateChanged = this.needsUpdate_();
+        if (this.trackPhase_ && this.phase != 'active') {
+          this.phase = 'active';
+          stateChanged = true;
+          if (!this.touchScrolling_)
+            this.startActiveScrollTimeout_();
+        }
+        if (!stateChanged)
           return false;
         this.setAnimationsNeedUpdate_();
       }
