@@ -32,6 +32,7 @@ registerAnimator('twitter-header', class TwitterHeader {
     this.hideChange_ = 0;
     this.lastScrollPos_ = -1;
     this.lastTime_ = 0;
+    this.lastScrollPhase_ = this.scrollTimeline.phase;
   }
 
   animate(currentTime, effect) {
@@ -48,9 +49,12 @@ registerAnimator('twitter-header', class TwitterHeader {
     if (this.scrollTimeline.phase == 'idle') {
       // When the scroll goes idle, determine if we need to keep sliding the header.
       if (this.hideAmount_ != currentMinHideAmount && this.hideAmount_ != MAX_HIDE_AMOUNT) {
-        this.hideAmount_ += this.hideChange_ * timeDelta;
-        this.hideAmount_ = Math.max(currentMinHideAmount, Math.min(MAX_HIDE_AMOUNT, this.hideAmount_));
-        this.documentTimeline.attach(this);
+        if (this.lastScrollPhase_ == 'active') {
+          this.documentTimeline.attach(this);
+        } else {
+          this.hideAmount_ += this.hideChange_ * timeDelta;
+          this.hideAmount_ = Math.max(currentMinHideAmount, Math.min(MAX_HIDE_AMOUNT, this.hideAmount_));
+        }
       } else {
         this.documentTimeline.detach(this);
       }
@@ -74,5 +78,6 @@ registerAnimator('twitter-header', class TwitterHeader {
 
     this.lastScrollPos_ = scrollPos;
     this.lastTime_ = this.documentTimeline.currentTime;
+    this.lastScrollPhase_ = this.scrollTimeline.phase;
   }
 });
