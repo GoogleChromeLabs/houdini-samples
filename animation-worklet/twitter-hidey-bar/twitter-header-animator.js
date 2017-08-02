@@ -59,7 +59,7 @@ registerAnimator('twitter-header', class TwitterHeader {
       // Track the last scroll and
       var lastScroll = (this.lastScrollPos_ - scrollPos);
       var direction = sign(lastScroll);
-      var speed = Math.max(HIDE_SPEED, Math.abs(lastScroll) / Math.min(1000, timeDelta));
+      var speed = HIDE_SPEED;
       this.hideChange_ = speed * direction;
       this.hideAmount_ += lastScroll;
       this.hideAmount_ = Math.max(currentMinHideAmount, Math.min(MAX_HIDE_AMOUNT, this.hideAmount_));
