@@ -49,9 +49,8 @@ limitations under the License.
           var barHeight = bar.clientHeight;
           var scrollTimeline = new ScrollTimeline({ scrollSource: scroller, orientation: 'vertical' });
 
-          window.hideybarAnimation = new WorkletAnimation('hidey-bar', [
-            new KeyframeEffect(scroller, [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(' + scrollRange + 'px)' }], scrollRange),
-            new KeyframeEffect(bar, [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(' + scrollRange + 'px)' }], scrollRange),],
+          window.hideybarAnimation = new WorkletAnimation('hidey-bar', 
+            new KeyframeEffect(bar, [{ 'transform': 'translateY(0)' }, { 'transform': 'translateY(' + scrollRange + 'px)' }], scrollRange),
             scrollTimeline,
             { scrollRange: scrollRange, barHeight: barHeight, documentTimeline: new DocumentTimeline() });
 
