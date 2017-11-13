@@ -56,25 +56,26 @@ limitations under the License.
       <script src="../anim-worklet.js"></script>
       <script>
         document.addEventListener('DOMContentLoaded', function() {
-          var scroller = document.getElementById('scroller');
-          var avatar = document.querySelector('.avatar');
-          var avatarPicture = avatar.querySelector('img');
-          var bar = document.querySelector('.bar');
-          var barSection = bar.querySelector('section');
-          var scrollRange = (scroller.scrollHeight - scroller.clientHeight);
-          window.twitterAnimation = new WorkletAnimation('twitter-header', [
-              new KeyframeEffect(avatarPicture, [{'transform': 'translate(0, 0) scale(1)'}, {'transform': 'translate(-27px, 0) scale(0.4)'}], {duration: 144, fill: 'both'}),
-              new KeyframeEffect(avatar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
-              new KeyframeEffect(bar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
-              new KeyframeEffect(barSection, [{'opacity': 0}, {'opacity': 1}], {duration: 144, fill: 'both'}),
-            ], new ScrollTimeline({scrollSource: scroller, orientation: 'vertical'}), {
-              avatarTimeline: new ScrollTimeline({scrollSource: scroller, orientation: 'vertical',
-                  endScrollOffset: '144px', timeRange: 144}),
-              scrollRange: scrollRange,
-            });
-          window.twitterAnimation.play();
+          window.animationWorklet.addModule('twitter-header-animator.js').then(function(){
+            var scroller = document.getElementById('scroller');
+            var avatar = document.querySelector('.avatar');
+            var avatarPicture = avatar.querySelector('img');
+            var bar = document.querySelector('.bar');
+            var barSection = bar.querySelector('section');
+            var scrollRange = (scroller.scrollHeight - scroller.clientHeight);
+            window.twitterAnimation = new WorkletAnimation('twitter-header', [
+                new KeyframeEffect(avatarPicture, [{'transform': 'translate(0, 0) scale(1)'}, {'transform': 'translate(-27px, 0) scale(0.4)'}], {duration: 144, fill: 'both'}),
+                new KeyframeEffect(avatar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
+                new KeyframeEffect(bar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
+                new KeyframeEffect(barSection, [{'opacity': 0}, {'opacity': 1}], {duration: 144, fill: 'both'}),
+              ], new ScrollTimeline({scrollSource: scroller, orientation: 'vertical'}), {
+                avatarTimeline: new ScrollTimeline({scrollSource: scroller, orientation: 'vertical',
+                    endScrollOffset: '144px', timeRange: 144}),
+                scrollRange: scrollRange,
+              });
+            window.twitterAnimation.play();
+          });
         });
-        window.animationWorkletPolyfill.addModule('twitter-header-animator.js');
       </script>
     </div>
   </body>
