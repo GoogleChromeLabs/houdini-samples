@@ -478,8 +478,15 @@ limitations under the License.
     });
   }
 
-  // TODO(flackr): It seems we can't properly polyfill animationWorklet because it exists with --experimental-web-platform-features and seems to be read-only.
   // TODO(flackr): Get CompositorWorkerAnimationWorklet polyfill working with new API.
   scope.animationWorkletPolyfill = MainThreadAnimationWorklet();
+
+  if (scope.animationWorklet) {
+    // scope.animationWorklet is read-only but we can polyfill addModule()
+    if (!scope.animationWorklet.addModule)
+      scope.animationWorklet.addModule = scope.animationWorkletPolyfill.addModule;
+  } else {
+    scope.animationWorklet = scope.animationWorkletPolyfill;
+  }
 
 })(self);

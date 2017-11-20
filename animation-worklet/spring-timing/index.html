@@ -36,23 +36,24 @@ limitations under the License.
 </body>
 <script src="../anim-worklet.js"></script>
 <script>
-  window.animationWorkletPolyfill.addModule('spring-timing-animator.js');
   document.addEventListener('DOMContentLoaded', function() {
-    var elems = document.querySelectorAll('div.box');
-    var effects = [];
-    var options = [];
-    for (var i = 0; i < elems.length; i++) {
-      var computedStyle = getComputedStyle(elems[i]);
-      options.push({
-        k: parseFloat(computedStyle.getPropertyValue('--spring-k')),
-        ratio: parseFloat(computedStyle.getPropertyValue('--ratio')),
-        target: parseFloat(computedStyle.getPropertyValue('--target')),
-      });
-      var range = options[options.length - 1].target * 2;
-      effects.push(new KeyframeEffect(elems[i], [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range));
-    }
-    window.springAnimation = new WorkletAnimation('spring', effects, new DocumentTimeline(), options);
-    window.springAnimation.play();
+    window.animationWorklet.addModule('spring-timing-animator.js').then(function() {
+      var elems = document.querySelectorAll('div.box');
+      var effects = [];
+      var options = [];
+      for (var i = 0; i < elems.length; i++) {
+        var computedStyle = getComputedStyle(elems[i]);
+        options.push({
+          k: parseFloat(computedStyle.getPropertyValue('--spring-k')),
+          ratio: parseFloat(computedStyle.getPropertyValue('--ratio')),
+          target: parseFloat(computedStyle.getPropertyValue('--target')),
+        });
+        var range = options[options.length - 1].target * 2;
+        effects.push(new KeyframeEffect(elems[i], [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range));
+      }
+      window.springAnimation = new WorkletAnimation('spring', effects, new DocumentTimeline(), options);
+      window.springAnimation.play();
+    });
   });
 </script>
 
