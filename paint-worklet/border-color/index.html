@@ -71,5 +71,5 @@ limitations under the License.
     initialValue: '0',
   });
 });
-window.CSS.paintWorklet.addModule('border-colors.js');
+(CSS.paintWorklet || paintWorklet).addModule('border-colors.js');
 </script>
