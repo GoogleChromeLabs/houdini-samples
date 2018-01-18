@@ -1,0 +1,22 @@
+div {
+  font-family: Roboto;
+  width: 400px;
+  height: 300px;
+  font-size: 50px; 
+  line-height: 3em;
+  box-sizing: border-box;
+  text-align: center;
+  color: white;
+  background-image: linear-gradient(180deg, hsl(0, 100%, 30%), hsl(0, 100%, 20%));
+}
+
+html, body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

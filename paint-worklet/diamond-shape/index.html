@@ -1,0 +1,14 @@
+<!doctype html>
+<style>
+  div {
+    -webkit-mask-image: paint(demo, 80%, 20%);
+  }
+</style>
+<div>
+  Houdini
+</div>
+<script>
+  CSS.paintWorklet.addModule('demo3.js');
+</script>
+
+<link rel="stylesheet" href="demo3.css">

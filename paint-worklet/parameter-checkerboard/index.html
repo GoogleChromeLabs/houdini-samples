@@ -1,0 +1,13 @@
+<!doctype html>
+<style>
+  textarea {
+    /* The paint worklet subscribes to changes to these custom proeprties*/
+    --checkerboard-spacing: 10;
+    --checkerboard-size: 32;
+    background-image: paint(checkerboard);
+  }
+</style>
+<textarea></textarea>
+<script>
+  CSS.paintWorklet.addModule('demo2.js');
+</script>
