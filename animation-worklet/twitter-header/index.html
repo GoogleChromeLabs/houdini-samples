@@ -70,19 +70,56 @@ limitations under the License.
       orientation: 'block',
       timeRange: maxTime,
     });
+    const clientHeight = scrollSource.clientHeight;
+    const scrollHeight = scrollSource.scrollHeight;
 
     const avatarTargetScale = sizes.get('--bar-height').value / (sizes.get('--avatar-size').value + 2 * sizes.get('--avatar-border').value);
-    const avatarScrollEndPos = (sizes.get('--header-height').value/2 - sizes.get('--avatar-size').value/2 - sizes.get('--avatar-border').value)/(scrollSource.scrollHeight - scrollSource.clientHeight) * maxTime;
+    const avatarScrollEndPos = (sizes.get('--header-height').value/2 - sizes.get('--avatar-size').value/2 - sizes.get('--avatar-border').value)/(scrollHeight - clientHeight) * maxTime;
+    console.log(avatarScrollEndPos);
 
-    const animation = new WorkletAnimation('twitter-header',
+    new WorkletAnimation('twitter-header',
       [
-        // new KeyframeEffect(bar, [{opacity: 0}, {opacity: 1}], {duration: 100000, fill: 'both'}),
-        new KeyframeEffect(avatar, [{scale: 1}, {scale: avatarTargetScale}], {duration: avatarScrollEndPos, fill: 'both', easing: 'ease-in-out'}),
+        new KeyframeEffect(avatar, [
+          {transform: `scale(1)`},
+          {transform: `scale(${avatarTargetScale})`},
+        ], {
+          duration: avatarScrollEndPos,
+          fill: 'both',
+          easing: 'ease-in-out',
+          composite: 'accumulate',
+        }),
       ],
       scrollTimeline,
-      {/*scrollTimeline*/}
-    );
-    animation.play();
+      {}
+    ).play();
+    new WorkletAnimation('twitter-header',
+      [
+        new KeyframeEffect(bar, [
+          {opacity: 0},
+          {opacity: 1}
+        ], {
+          duration: avatarScrollEndPos,
+          fill: 'both',
+        }),
+      ],
+      scrollTimeline,
+      {}
+    ).play();
+    new WorkletAnimation('twitter-header',
+      [
+        new KeyframeEffect(avatar, [
+          {transform: `translateY(0px)`},
+          {transform: `translateY(${scrollHeight - clientHeight}px)`},
+        ], {
+          delay: avatarScrollEndPos/scrollHeight * maxTime,
+          duration: (scrollHeight - clientHeight)/scrollHeight * maxTime,
+          fill: 'both',
+          composite: 'accumulate',
+        }),
+      ],
+      scrollTimeline,
+      {}
+    )//.play();
   }
   init();
 </script>
