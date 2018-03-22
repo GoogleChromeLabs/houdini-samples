@@ -13,22 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-registerAnimator('twitter-header', class TwitterHeader {
+registerAnimator('twitter-header', class {
   constructor(options) {
-    this.options = options;
-    this.options.avatarTimeline.attach(this);
   }
 
   animate(currentTime, effect) {
-    var scrollPos = currentTime * this.options.scrollRange;
-    // Avatar scale
-    effect.children[0].localTime = this.options.avatarTimeline.currentTime;
-    // Avatar position
-    effect.children[1].localTime = scrollPos > 189 - 45 * 0.6 ?
-        scrollPos - (189 - 45 * 0.6) + 45 : 45;
-    // Header bar position
-    effect.children[2].localTime = scrollPos;
-    // Header bar opacity
-    effect.children[3].localTime = this.options.avatarTimeline.currentTime;
+    console.log(`animate: ${currentTime}`, effect);
+    effect.localTime = currentTime;
   }
 });

@@ -16,78 +16,103 @@ limitations under the License.
 * {
   box-sizing: border-box;
 }
+/* Colors */
+:root {
+  --light-blue: rgb(230, 236, 240);
+  --white: white;
+  --grey: rgb(101, 119, 134);
+  --blue: rgb(27, 149, 224);
+  --black: rgb(20, 23, 26);
+}
+
+/* Dimensions */
+:root {
+  --avatar-size: 140px;
+  --avatar-border: 18px;
+  --header-height: 500px;
+  --font-base: 15px;
+  --bar-height: 50px;
+}
+
 html, body {
   margin: 0;
-  border :0;
+  border: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: black;
-}
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: sans-serif;
-}
-#scroller {
-  width: 360px;
-  height: 567px;
-  overflow-y: auto;
+  min-height: 100vh;
   overflow-x: hidden;
-  background-color: #black;
-  color: white;
-  border: 5px solid rgb(80, 80, 80);
-  border-radius: 5px;
-  position: relative;
+  background-color: var(--light-blue);
+
+  font-family: Helvetica;
+  color: var(--black);
+  font-size: var(--font-base);
 }
-header {
+
+body {
+  max-width: 600px;
   width: 100%;
-  height: 189px;
-  padding: 0 5px;
-  background: url('banner.jpg') 50% 50%/cover;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
+  margin: 0 auto;
+  height: 100vh;
+  overflow-y: auto;
 }
-.avatar {
-  transform: translate(0, 45px);
-  z-index: 2;
+
+a {
+  text-decoration: none;
+  color: var(--blue);
 }
-.avatar > img {
-  width: 90px;
-  height: 90px;
-  border: 5px solid white;
-  border-radius: 15px;
-}
-.profilecontrols {
-  transform: translate(0, 45px);
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-}
-.profilecontrols > button {
-  height: 40px;
-  margin-left: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.27);
-  color: white;
-  background-color: transparent;
-  border-radius: 5px;
-}
-.profile {
-  margin-top: 45px;
-  padding: 10px;
-}
-.tweets {
-  padding: 10px;
-}
-.bar > section {
-  opacity: 0;
-  position: absolute;
+
+.bar {
+  background-color: var(--white);
+  position: fixed;
   top: 0;
-  width: 100%;
-  height: 50px;
-  z-index: 1;
-  background-color: rgba(255, 255, 255, 0.74);
+  left: 0;
+  right: 0;
+  height: var(--bar-height);
+  box-shadow: var(--grey) 0px 0px 4px;
+}
+
+.profile, .tweets {
+  background-color: var(--white);
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
+.profile {
+  height: var(--header-height);
+  background-image: url('banner.jpg');
+  background-size: auto calc(var(--header-height) / 2);
+  background-position: 50% 0%;
+  background-repeat: no-repeat;
+  padding-top: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.profile > * {
+  margin: 0;
+}
+
+.profile .avatar {
+  box-sizing: content-box;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: 50%;
+  border: var(--avatar-border) solid var(--white);
+  margin-left: calc(var(--avatar-border) * -1);
+  margin-top: calc(var(--header-height) / 2 - var(--avatar-size) / 2 - var(--avatar-border));
+  transform-origin: var(--avatar-border) 0%;
+}
+
+.profile .name {
+  font-size: calc(var(--font-base) * 4/3);
+}
+
+.profile .handle {
+  font-size: var(--font-base);
+  color: var(--grey);
+  margin-bottom: var(--font-base);
+}
+
+.profile .description {
+  flex-grow: 1;
 }
