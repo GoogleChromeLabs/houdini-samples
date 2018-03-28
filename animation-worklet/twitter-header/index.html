@@ -64,7 +64,8 @@ limitations under the License.
     const scrollSource = document.body;
     const avatar = document.querySelector('.avatar');
     const bar = document.querySelector('.bar');
-    const maxTime = 1000000;
+    const maxTime = 1000;
+    const epsilon = 1e-2;
     const scrollTimeline = new ScrollTimeline({
       scrollSource,
       orientation: 'block',
@@ -73,53 +74,76 @@ limitations under the License.
     const clientHeight = scrollSource.clientHeight;
     const scrollHeight = scrollSource.scrollHeight;
 
+    const scrollSize = scrollHeight - clientHeight; // maximum scroll offset
+
     const avatarTargetScale = sizes.get('--bar-height').value / (sizes.get('--avatar-size').value + 2 * sizes.get('--avatar-border').value);
-    const avatarScrollEndPos = (sizes.get('--header-height').value/2 - sizes.get('--avatar-size').value/2 - sizes.get('--avatar-border').value)/(scrollHeight - clientHeight) * maxTime;
-    console.log(avatarScrollEndPos);
+    const avatarScrollEndPos = (sizes.get('--header-height').value/2 - sizes.get('--avatar-size').value/2 - sizes.get('--avatar-border').value);
+    const avatarTargetTranslate = scrollSize - avatarScrollEndPos;
+    // Stop scaling at this offset and start transform.
+    const avatarScrollEndOffset = avatarScrollEndPos / scrollSize;
+
+    console.log(avatarScrollEndPos, avatarScrollEndOffset);
+    console.log(scrollSize);
+    const avatarEffect = new KeyframeEffect(avatar, [
+      {transform: `translateY(0px) scale(1)`, easing: 'ease-in-out', offset: 0},
+      {transform: `translateY(0px) scale(${avatarTargetScale})`, easing: 'linear', offset: avatarScrollEndOffset},
+      {transform: `translateY(${avatarTargetTranslate}px) scale(${avatarTargetScale})`, offset: 1},
+    ], {
+      duration: maxTime + epsilon,
+      fill: 'both',
+      iterations: Infinity,
+    });
+      
+    new WorkletAnimation('twitter-header',
+      [avatarEffect],
+      scrollTimeline,
+      {}
+    ).play();
 
     new WorkletAnimation('twitter-header',
       [
-        new KeyframeEffect(avatar, [
-          {transform: `scale(1)`},
-          {transform: `scale(${avatarTargetScale})`},
-        ], {
-          duration: avatarScrollEndPos,
-          fill: 'both',
-          easing: 'ease-in-out',
-          composite: 'accumulate',
-        }),
-      ],
-      scrollTimeline,
-      {}
-    ).play();
-    new WorkletAnimation('twitter-header',
-      [
         new KeyframeEffect(bar, [
-          {opacity: 0},
-          {opacity: 1}
+          {opacity: 0, offset: 0},
+          {opacity: 1, offset: avatarScrollEndOffset},
+          {opacity: 1, offset: 1}
         ], {
-          duration: avatarScrollEndPos,
+          duration: maxTime + epsilon,
           fill: 'both',
+          iterations: Infinity, 
+          /* crbug(779189): Use infinity iteration and maxDuration to avoid effect 
+             prematurely finishing.
+
+             BTW, Web Animations uses an endpoint-exclusive timing model, which mean
+             when timeline is at "duration" time, it is considered to be at 0 time of the 
+             second iteration. To avoid this, we ensure our max time (max scroll offset) never
+             reaches duration by having duration an epsilon larger.  This hack is not
+             needed once we fix the original bug above.
+           */
         }),
       ],
       scrollTimeline,
       {}
     ).play();
-    new WorkletAnimation('twitter-header',
-      [
-        new KeyframeEffect(avatar, [
-          {transform: `translateY(0px)`},
-          {transform: `translateY(${scrollHeight - clientHeight}px)`},
-        ], {
-          delay: avatarScrollEndPos/scrollHeight * maxTime,
-          duration: (scrollHeight - clientHeight)/scrollHeight * maxTime,
-          fill: 'both',
-          composite: 'accumulate',
-        }),
-      ],
-      scrollTimeline,
-      {}
-    )//.play();
+    
+    /* crbug(824782): delay is not working as expected in worklet, instead here we combine 
+       what would have been a delayed animation with the other avatar animation but start
+       it at a different offset.
+
+      new WorkletAnimation('twitter-header',
+        [
+          new KeyframeEffect(avatar, [
+            {transform: `translateY(0px)`},
+            {transform: `translateY(${scrollHeight - clientHeight}px)`},
+          ], {
+            delay: avatarScrollEndPos/scrollHeight * maxTime,
+            duration: (scrollHeight - clientHeight)/scrollHeight * maxTime,
+            fill: 'both',
+          }),
+        ],
+        scrollTimeline,
+        {}
+      )//.play();
+    */
   }
   init();
 </script>
