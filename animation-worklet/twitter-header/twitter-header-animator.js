@@ -18,7 +18,7 @@ registerAnimator('twitter-header', class {
   }
 
   animate(currentTime, effect) {
-    console.log(`animate: ${currentTime}`, effect);
+    // console.log(`animate: ${currentTime}`, effect);
     effect.localTime = currentTime;
   }
 });
