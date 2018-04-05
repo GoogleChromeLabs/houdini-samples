@@ -31,6 +31,8 @@
 <div>9 Lorem ipsum dolor sit amet, consul disputando ne his, et vim accumsan ponderum. Rebum deseruisse ex vix. Vix stet honestatis definitionem an, et natum ocurreret cum, semper interpretaris cu mea. Eam saperet fierent luptatum no. Ius ei dicunt detracto elaboraret.</div>
 
 <script>
+  if (location.protocol === 'http:' && location.hostname !== 'localhost')
+    location.protocol = 'https:';
   document.querySelectorAll('div').forEach(elem => {
     const t = elem.textContent;
     // Cut out a random amount of text, but keep at least 10 characters

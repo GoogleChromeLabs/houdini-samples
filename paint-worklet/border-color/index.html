@@ -71,6 +71,8 @@ limitations under the License.
     initialValue: '0',
   });
 });
+if (location.protocol === 'http:' && location.hostname !== 'localhost')
+    location.protocol = 'https:';
 if ('paintWorklet' in CSS) {
     CSS.paintWorklet.addModule('border-colors.js');
   } else {

@@ -9,6 +9,8 @@
 </style>
 <textarea></textarea>
 <script>
+  if (location.protocol === 'http:' && location.hostname !== 'localhost')
+    location.protocol = 'https:';
   if ('paintWorklet' in CSS) {
     CSS.paintWorklet.addModule('demo2.js');
   } else {
