@@ -16,78 +16,226 @@ limitations under the License.
 * {
   box-sizing: border-box;
 }
+/* Colors */
+:root {
+  --light-blue: rgb(230, 236, 240);
+  --white: white;
+  --grey: rgb(101, 119, 134);
+  --light-grey: rgb(204, 214, 221);
+  --blue: rgb(27, 149, 224);
+  --black: rgb(20, 23, 26);
+}
+
+/* Dimensions */
+:root {
+  --avatar-size: 140px;
+  --avatar-border: 4px;
+  --header-height: 500px;
+  --font-base: 15px;
+  --bar-height: 50px;
+  --spacer: 10px;
+  --author-size: 50px;
+}
+
 html, body {
   margin: 0;
-  border :0;
+  border: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: black;
-}
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: sans-serif;
-}
-#scroller {
-  width: 360px;
-  height: 567px;
-  overflow-y: auto;
+  min-height: 100vh;
   overflow-x: hidden;
-  background-color: #black;
-  color: white;
-  border: 5px solid rgb(80, 80, 80);
-  border-radius: 5px;
-  position: relative;
+  background-color: var(--light-blue);
+
+  font-family: Helvetica;
+  color: var(--black);
+  font-size: var(--font-base);
 }
-header {
+
+body {
+  max-width: 600px;
   width: 100%;
-  height: 189px;
-  padding: 0 5px;
-  background: url('banner.jpg') 50% 50%/cover;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
+  margin: 0 auto;
+  height: 100vh;
+  overflow-y: auto;
+  backface-visibility: hidden;
 }
-.avatar {
-  transform: translate(0, 45px);
+
+a {
+  text-decoration: none;
+  color: var(--blue);
+}
+
+.bar {
+  background-color: var(--white);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--bar-height);
+  box-shadow: var(--grey) 0px 0px 4px;
   z-index: 2;
 }
-.avatar > img {
-  width: 90px;
-  height: 90px;
-  border: 5px solid white;
-  border-radius: 15px;
+
+.profile, .tweets {
+  background-color: var(--white);
+  margin-bottom: calc(2 * var(--spacer));
 }
-.profilecontrols {
-  transform: translate(0, 45px);
+
+.profile {
+  position: relative;
+  min-height: var(--header-height);
+  background-image: url('banner.jpg');
+  background-size: auto calc(var(--header-height) / 2);
+  background-position: 50% 0%;
+  background-repeat: no-repeat;
+  padding: var(--spacer);
+  padding-top: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.profile > * {
+  margin: 0;
+}
+
+.profile .avatar {
+  box-sizing: content-box;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: 50%;
+  border: var(--avatar-border) solid var(--white);
+  margin-left: calc(var(--avatar-border) * -1);
+  margin-top: calc(var(--header-height) / 2 - var(--avatar-size) / 2 - var(--avatar-border));
+  margin-bottom: var(--spacer);
+  transform-origin: var(--avatar-border) 0%;
+  z-index: 3;
+}
+
+.profile .name {
+  font-size: calc(var(--font-base) * 4/3);
+  position: relative;
+  z-index: 3;
+}
+
+.profile .handle {
+  font-size: var(--font-base);
+  color: var(--grey);
+  margin-bottom: var(--font-base);
+  font-weight: normal;
+}
+
+.profile .description {
+  flex-grow: 1;
+}
+
+.profile .stats, .profile .meta {
+  color: var(--grey);
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
 }
-.profilecontrols > button {
-  height: 40px;
-  margin-left: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.27);
-  color: white;
-  background-color: transparent;
-  border-radius: 5px;
+
+.profile .meta {
+  margin: calc(1.5 * var(--spacer)) 0;
 }
-.profile {
-  margin-top: 45px;
-  padding: 10px;
+
+.profile .location, .profile .homepage {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
 }
-.tweets {
-  padding: 10px;
+
+.profile .location:before, .profile .homepage:before {
+  display: inline-block;
+  content: '';
+  background-image: url('location.svg');
+  width: 1.3em;
+  height: 1.3em;
+  margin-right: 0.2em;
 }
-.bar > section {
-  opacity: 0;
+
+.profile .homepage:before {
+  margin-left: calc(2* var(--spacer));
+  background-image: url('homepage.svg');
+}
+
+.profile .stats > * {
+  font-weight: bold;
+  color: var(--black);
+  margin-right: 0.2em;
+}
+
+.profile .followers {
+  margin-left: calc(2 * var(--spacer));
+}
+
+.profile .follow {
   position: absolute;
-  top: 0;
-  width: 100%;
-  height: 50px;
-  z-index: 1;
-  background-color: rgba(255, 255, 255, 0.74);
+  z-index: 3;
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  border-radius: calc(1em + var(--spacer));
+  font-weight: bold;
+  font-size: calc(var(--font-base) * 3/3);
+  padding: var(--spacer) calc(2 * var(--spacer));
+  top: calc(var(--header-height) / 2 + var(--spacer));
+  right: var(--spacer);
 }
+
+.tweet {
+  border-bottom: 1px solid var(--light-grey);
+  padding: var(--spacer);
+  padding-left: calc(var(--author-size) + 2 * var(--spacer));
+}
+
+.tweet .meta {
+  color: var(--grey);
+}
+
+.tweet .meta .name {
+  font-weight: bold;
+  color: var(--black);
+}
+
+.tweet .meta .handle:after {
+  content: '•';
+  margin-left: 0.2em;
+}
+
+.tweet .avatar {
+  width: var(--author-size);
+  height: var(--author-size);
+  margin: 0;
+  margin-left: calc((var(--author-size) + var(--spacer)) * -1);
+  float: left;
+  border-radius: 50%;
+}
+
+.tweet .media {
+  margin: var(--spacer) 0;
+  border: 1px solid var(--light-grey);
+  border-radius: 12px; /* FIXME */
+  overflow: hidden;
+  padding: var(--spacer);
+}
+
+.tweet .media .domain {
+  color: var(--grey);
+}
+
+.tweet .media img {
+  margin-top: calc(-1 * var(--spacer));
+  margin-left: calc(-1 * var(--spacer));
+  margin-bottom: var(--spacer);
+  width: 100%;
+  border-bottom: 1px solid var(--light-grey);
+}
+
+.tweet .media p {
+  margin: 0;
+}
+
+.tweet .media p + p{
+  margin-top: var(--spacer);
+}
+
