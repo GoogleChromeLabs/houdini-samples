@@ -81,15 +81,10 @@ limitations under the License.
   async function init() {
     await animationWorklet.addModule('twitter-header-animator.js');
     const scrollSource = document.body;
-    const scrollSourceStyles = document.body.computedStyleMap();
     const bar = document.querySelector('.bar');
     const avatar = document.querySelector('.avatar');
     const timeRange = 1000;
     const scrollTimeline = new ScrollTimeline({scrollSource, timeRange});
-    const viewportHeight = scrollSource.clientHeight;
-    const maxScroll = scrollSource.scrollHeight - viewportHeight;
-    const avatarDistanceFromTop = scrollSourceStyles.get('--header-height').value / 2 - scrollSourceStyles.get('--avatar-size').value / 2 - scrollSourceStyles.get('--avatar-border').value;
-    const timeWhenAvatarTouchesTop = avatarDistanceFromTop / maxScroll * timeRange;
 
     const barEffect = new KeyframeEffect(
       bar,
@@ -98,7 +93,7 @@ limitations under the License.
         {opacity: 1},
       ],
       {
-        duration: timeWhenAvatarTouchesTop,
+        duration: /*timeWhenAvatarTouchesTop*/ 0,
         fill: 'both',
       }
     );
@@ -108,16 +103,12 @@ limitations under the License.
       scrollTimeline,
       []
     ).play();
-
-    const targetAvatarScale = scrollSourceStyles.get('--bar-height').value / (scrollSourceStyles.get('--avatar-size').value + scrollSourceStyles.get('--avatar-border').value * 2);
-    const maxAvatarOffset = maxScroll - avatarDistanceFromTop;
-    console.log(maxScroll, avatarDistanceFromTop, maxAvatarOffset);
     const avatarEffect = new KeyframeEffect(
       avatar,
       [
         {transform: `translateY(0) scale(1)`},
-        {transform: `translateY(0px) scale(${targetAvatarScale})`, offset: timeWhenAvatarTouchesTop/timeRange},
-        {transform: `translateY(${maxAvatarOffset}px) scale(${targetAvatarScale})`},
+        {transform: `translateY(0px) scale(${0/*targetAvatarScale*/})`, offset: 0/*timeWhenAvatarTouchesTop/timeRange*/},
+        {transform: `translateY(${0/*maxAvatarOffset*/}px) scale(${0/*targetAvatarScale*/})`},
       ],
       {
         duration: timeRange,
@@ -130,6 +121,28 @@ limitations under the License.
       scrollTimeline,
       []
     ).play();
+
+    function updateTimings() {
+      const scrollSourceStyles = document.body.computedStyleMap();
+      const viewportHeight = scrollSource.clientHeight;
+      const maxScroll = scrollSource.scrollHeight - viewportHeight;
+      const avatarDistanceFromTop = scrollSourceStyles.get('--header-height').value / 2 - scrollSourceStyles.get('--avatar-size').value / 2 - scrollSourceStyles.get('--avatar-border').value;
+      const timeWhenAvatarTouchesTop = avatarDistanceFromTop / maxScroll * timeRange;
+      const targetAvatarScale = scrollSourceStyles.get('--bar-height').value / (scrollSourceStyles.get('--avatar-size').value + scrollSourceStyles.get('--avatar-border').value * 2);
+      const maxAvatarOffset = maxScroll - avatarDistanceFromTop;
+      console.log(maxScroll, avatarDistanceFromTop, maxAvatarOffset);
+
+      const avatarEffectKeyFrames = avatarEffect.getKeyframes();
+      avatarEffectKeyFrames[1].transform = `translateY(0px) scale(${targetAvatarScale})`;
+      avatarEffectKeyFrames[1].offset = timeWhenAvatarTouchesTop/timeRange;
+      avatarEffectKeyFrames[2].transform = `translateY(${maxAvatarOffset}px) scale(${targetAvatarScale})`;
+      avatarEffect.setKeyframes(avatarEffectKeyFrames);
+
+      barEffect.duration = timeWhenAvatarTouchesTop;
+    }
+    updateTimings();
+    window.addEventListener('resize', _ => updateTimings());
+
   }
   init();
 </script>
