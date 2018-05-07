@@ -113,6 +113,8 @@ a {
 
 .profile .name {
   font-size: calc(var(--font-base) * 4/3);
+  position: relative;
+  z-index: 3;
 }
 
 .profile .handle {

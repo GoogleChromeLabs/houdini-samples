@@ -95,8 +95,9 @@ limitations under the License.
     await animationWorklet.addModule('twitter-header-animator.js');
     const scrollSource = document.body;
     const bar = document.querySelector('.bar');
-    const avatar = document.querySelector('.avatar');
-    const follow = document.querySelector('.follow');
+    const avatar = document.querySelector('.profile .avatar');
+    const follow = document.querySelector('.profile .follow');
+    const name = document.querySelector('.profile .name');
     const timeRange = 1000;
     const scrollTimeline = new ScrollTimeline({scrollSource, timeRange});
 
@@ -135,11 +136,12 @@ limitations under the License.
       scrollTimeline,
       []
     ).play();
+
     const followEffect = new KeyframeEffect(
       follow,
       [
         {transform: `translateY(0)`},
-        {transform: `translateY(0)`, offset: 0/*/timeRange*/},
+        {transform: `translateY(0)`, offset: 0/*timeWhenFollowTouchesTop/range*/},
         {transform: `translateY(${0/*maxAvatarOffset*/}px)`},
       ],
       {
@@ -154,17 +156,35 @@ limitations under the License.
       []
     ).play();
 
+    const nameEffect = new KeyframeEffect(
+      name,
+      [
+        {transform: `translateY(0)`},
+        {transform: `translateY(0)`, offset: 0/*timeWhenFollowTouchesTop/timeRange*/},
+        {transform: `translateY(0) translateX(${0/*scrollSourceStyles.get('--bar-height').value*/}px)`, offset: 0/*timeWhenNameTouchesTop/timeRange*/},
+        {transform: `translateY(${0/*maxNameOffset*/}px) translateX(${0/*scrollSourceStyles.get('--bar-height').value*/}px)`},
+      ],
+      {
+        duration: timeRange,
+        fill: 'both',
+      }
+    );
+    new WorkletAnimation(
+      'twitter-header',
+      nameEffect,
+      scrollTimeline,
+      []
+    ).play();
+
     function updateTimings() {
       const scrollSourceStyles = document.body.computedStyleMap();
       const viewportHeight = scrollSource.clientHeight;
       const maxScroll = scrollSource.scrollHeight - viewportHeight;
+
       const avatarDistanceFromTop = scrollSourceStyles.get('--header-height').value / 2 - scrollSourceStyles.get('--avatar-size').value / 2 - scrollSourceStyles.get('--avatar-border').value;
       const timeWhenAvatarTouchesTop = avatarDistanceFromTop / maxScroll * timeRange;
       const maxAvatarOffset = maxScroll - avatarDistanceFromTop;
       const targetAvatarScale = scrollSourceStyles.get('--bar-height').value / (scrollSourceStyles.get('--avatar-size').value + scrollSourceStyles.get('--avatar-border').value * 2);
-      const followDistanceFromTop = scrollSourceStyles.get('--header-height').value / 2 + scrollSourceStyles.get('--spacer').value/2;
-      const timeWhenFollowTouchesTop = followDistanceFromTop / maxScroll * timeRange;
-      const maxFollowOffset = maxScroll - followDistanceFromTop;
 
       const avatarEffectKeyFrames = avatarEffect.getKeyframes();
       avatarEffectKeyFrames[1].transform = `translateY(0px) scale(${targetAvatarScale})`;
@@ -174,10 +194,24 @@ limitations under the License.
 
       barEffect.duration = timeWhenAvatarTouchesTop;
 
+      const followDistanceFromTop = scrollSourceStyles.get('--header-height').value / 2 + scrollSourceStyles.get('--spacer').value/2;
+      const timeWhenFollowTouchesTop = followDistanceFromTop / maxScroll * timeRange;
+      const maxFollowOffset = maxScroll - followDistanceFromTop;
       const followEffectKeyFrames = followEffect.getKeyframes();
       followEffectKeyFrames[1].offset = timeWhenFollowTouchesTop/timeRange;
       followEffectKeyFrames[2].transform = `translateY(${maxFollowOffset}px)`;
       followEffect.setKeyframes(followEffectKeyFrames);
+
+      const nameDistanceFromTop = name.offsetTop - scrollSourceStyles.get('--spacer').value;
+      const timeWhenNameTouchesTop = nameDistanceFromTop / maxScroll * timeRange;
+      const maxNameOffset = maxScroll - nameDistanceFromTop;
+      const nameEffectKeyFrames = nameEffect.getKeyframes();
+      const nameLeftOffset = scrollSourceStyles.get('--bar-height').value + scrollSourceStyles.get('--spacer').value/2;
+      nameEffectKeyFrames[1].offset = timeWhenAvatarTouchesTop/timeRange;
+      nameEffectKeyFrames[2].transform = `translateY(0) translateX(${nameLeftOffset}px)`;
+      nameEffectKeyFrames[2].offset = timeWhenNameTouchesTop/timeRange;
+      nameEffectKeyFrames[3].transform = `translateY(${maxNameOffset}px) translateX(${nameLeftOffset}px)`;
+      nameEffect.setKeyframes(nameEffectKeyFrames);
     }
     updateTimings();
     window.addEventListener('resize', _ => updateTimings());
