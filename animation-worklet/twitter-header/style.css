@@ -21,6 +21,7 @@ limitations under the License.
   --light-blue: rgb(230, 236, 240);
   --white: white;
   --grey: rgb(101, 119, 134);
+  --light-grey: rgb(204, 214, 221);
   --blue: rgb(27, 149, 224);
   --black: rgb(20, 23, 26);
 }
@@ -33,6 +34,7 @@ limitations under the License.
   --font-base: 15px;
   --bar-height: 50px;
   --spacer: 10px;
+  --author-size: 50px;
 }
 
 html, body {
@@ -175,4 +177,60 @@ a {
   padding: var(--spacer) calc(2 * var(--spacer));
   top: calc(var(--header-height) / 2 + var(--spacer));
   right: var(--spacer);
+}
+
+.tweet {
+  border-bottom: 1px solid var(--grey);
+  padding-left: calc(var(--author-size) + var(--spacer));
+  padding-top: var(--spacer);
+}
+
+.tweet .meta {
+  color: var(--grey);
+}
+
+.tweet .meta .name {
+  font-weight: bold;
+  color: var(--black);
+}
+
+.tweet .meta .handle:after {
+  content: '•';
+  margin-left: 0.2em;
+}
+
+.tweet .avatar {
+  width: var(--author-size);
+  height: var(--author-size);
+  margin: 0;
+  margin-left: calc((var(--author-size) + var(--spacer)) * -1);
+  float: left;
+  border-radius: 50%;
+}
+
+.tweet .media {
+  margin: var(--spacer) 0;
+  border: 1px solid var(--light-grey);
+  border-radius: 12px; /* FIXME */
+  overflow: hidden;
+  padding: var(--spacer);
+}
+
+.tweet .media .domain {
+  color: var(--grey);
+}
+
+.tweet .media img {
+  margin-top: calc(-1 * var(--spacer));
+  margin-left: calc(-1 * var(--spacer));
+  margin-bottom: var(--spacer);
+  width: 100%;
+  border-bottom: 1px solid var(--light-grey);
+}
+
+.tweet .media p {
+  margin: 0;
+}
+.tweet .media p + p{
+  margin-top: var(--spacer);
 }
