@@ -28,10 +28,11 @@ limitations under the License.
 /* Dimensions */
 :root {
   --avatar-size: 140px;
-  --avatar-border: 18px;
+  --avatar-border: 4px;
   --header-height: 500px;
   --font-base: 15px;
   --bar-height: 50px;
+  --spacer: 10px;
 }
 
 html, body {
@@ -69,16 +70,18 @@ a {
   right: 0;
   height: var(--bar-height);
   box-shadow: var(--grey) 0px 0px 4px;
+  z-index: 2;
 }
 
 .profile, .tweets {
   background-color: var(--white);
-  margin-bottom: 20px;
-  padding: 10px;
+  margin-bottom: calc(2 * var(--spacer));
+  padding: var(--spacer);
 }
 
 .profile {
-  height: var(--header-height);
+  position: relative;
+  min-height: var(--header-height);
   background-image: url('banner.jpg');
   background-size: auto calc(var(--header-height) / 2);
   background-position: 50% 0%;
@@ -101,7 +104,9 @@ a {
   border: var(--avatar-border) solid var(--white);
   margin-left: calc(var(--avatar-border) * -1);
   margin-top: calc(var(--header-height) / 2 - var(--avatar-size) / 2 - var(--avatar-border));
+  margin-bottom: var(--spacer);
   transform-origin: var(--avatar-border) 0%;
+  z-index: 3;
 }
 
 .profile .name {
@@ -112,8 +117,62 @@ a {
   font-size: var(--font-base);
   color: var(--grey);
   margin-bottom: var(--font-base);
+  font-weight: normal;
 }
 
 .profile .description {
   flex-grow: 1;
+}
+
+.profile .stats, .profile .meta {
+  color: var(--grey);
+  display: flex;
+  flex-direction: row;
+}
+
+.profile .meta {
+  margin: calc(1.5 * var(--spacer)) 0;
+}
+
+.profile .location, .profile .homepage {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+}
+
+.profile .location:before, .profile .homepage:before {
+  display: inline-block;
+  content: '';
+  background-image: url('location.svg');
+  width: 1.3em;
+  height: 1.3em;
+  margin-right: 0.2em;
+}
+
+.profile .homepage:before {
+  margin-left: calc(2* var(--spacer));
+  background-image: url('homepage.svg');
+}
+
+.profile .stats > * {
+  font-weight: bold;
+  color: var(--black);
+  margin-right: 0.2em;
+}
+
+.profile .followers {
+  margin-left: calc(2 * var(--spacer));
+}
+
+.profile .follow {
+  position: absolute;
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  border-radius: calc(1em + var(--spacer));
+  font-weight: bold;
+  font-size: calc(var(--font-base) * 3/3);
+  padding: var(--spacer) calc(2 * var(--spacer));
+  top: calc(var(--header-height) / 2 + var(--spacer));
+  right: var(--spacer);
 }
