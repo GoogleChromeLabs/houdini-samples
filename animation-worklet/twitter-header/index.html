@@ -42,18 +42,15 @@ limitations under the License.
 <section class="tweets">
   <section class="tweet">
     <img src="avatar.jpg" class="avatar">
-    <section class="meta">
-      <span class="name">Surma</span>
+    <section class="meta"> <span class="name">Surma</span>
       <span class="handle">@DasSurma</span>
       <span class="date">Dec 27</span>
     </section>
-    <section class="content">
-      📝 New post-🎄 blog post about architecture and web apps: The Actor Model and why I think it implies that DOM-in-workers is undesirable.
-      <section class="media">
-        <img src="media.jpg">
-        <p class="title">“An Actor, a model and an architect walk onto the web...” – DasSur.ma</p>
-        <p class="domain">dassur.ma</p>
-      </section>
+    📝 New post-🎄 blog post about architecture and web apps: The Actor Model and why I think it implies that DOM-in-workers is undesirable.
+    <section class="media">
+      <img src="media.jpg">
+      <p class="title">“An Actor, a model and an architect walk onto the web...” – DasSur.ma</p>
+      <p class="domain">dassur.ma</p>
     </section>
   </section>
   <section class="tweet">
@@ -99,6 +96,7 @@ limitations under the License.
     const scrollSource = document.body;
     const bar = document.querySelector('.bar');
     const avatar = document.querySelector('.avatar');
+    const follow = document.querySelector('.follow');
     const timeRange = 1000;
     const scrollTimeline = new ScrollTimeline({scrollSource, timeRange});
 
@@ -137,6 +135,24 @@ limitations under the License.
       scrollTimeline,
       []
     ).play();
+    const followEffect = new KeyframeEffect(
+      follow,
+      [
+        {transform: `translateY(0)`},
+        {transform: `translateY(0)`, offset: 0/*/timeRange*/},
+        {transform: `translateY(${0/*maxAvatarOffset*/}px)`},
+      ],
+      {
+        duration: timeRange,
+        fill: 'both',
+      }
+    );
+    new WorkletAnimation(
+      'twitter-header',
+      followEffect,
+      scrollTimeline,
+      []
+    ).play();
 
     function updateTimings() {
       const scrollSourceStyles = document.body.computedStyleMap();
@@ -144,9 +160,11 @@ limitations under the License.
       const maxScroll = scrollSource.scrollHeight - viewportHeight;
       const avatarDistanceFromTop = scrollSourceStyles.get('--header-height').value / 2 - scrollSourceStyles.get('--avatar-size').value / 2 - scrollSourceStyles.get('--avatar-border').value;
       const timeWhenAvatarTouchesTop = avatarDistanceFromTop / maxScroll * timeRange;
-      const targetAvatarScale = scrollSourceStyles.get('--bar-height').value / (scrollSourceStyles.get('--avatar-size').value + scrollSourceStyles.get('--avatar-border').value * 2);
       const maxAvatarOffset = maxScroll - avatarDistanceFromTop;
-      console.log(maxScroll, avatarDistanceFromTop, maxAvatarOffset);
+      const targetAvatarScale = scrollSourceStyles.get('--bar-height').value / (scrollSourceStyles.get('--avatar-size').value + scrollSourceStyles.get('--avatar-border').value * 2);
+      const followDistanceFromTop = scrollSourceStyles.get('--header-height').value / 2 + scrollSourceStyles.get('--spacer').value/2;
+      const timeWhenFollowTouchesTop = followDistanceFromTop / maxScroll * timeRange;
+      const maxFollowOffset = maxScroll - followDistanceFromTop;
 
       const avatarEffectKeyFrames = avatarEffect.getKeyframes();
       avatarEffectKeyFrames[1].transform = `translateY(0px) scale(${targetAvatarScale})`;
@@ -155,6 +173,11 @@ limitations under the License.
       avatarEffect.setKeyframes(avatarEffectKeyFrames);
 
       barEffect.duration = timeWhenAvatarTouchesTop;
+
+      const followEffectKeyFrames = followEffect.getKeyframes();
+      followEffectKeyFrames[1].offset = timeWhenFollowTouchesTop/timeRange;
+      followEffectKeyFrames[2].transform = `translateY(${maxFollowOffset}px)`;
+      followEffect.setKeyframes(followEffectKeyFrames);
     }
     updateTimings();
     window.addEventListener('resize', _ => updateTimings());

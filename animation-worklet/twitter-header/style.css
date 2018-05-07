@@ -78,7 +78,6 @@ a {
 .profile, .tweets {
   background-color: var(--white);
   margin-bottom: calc(2 * var(--spacer));
-  padding: var(--spacer);
 }
 
 .profile {
@@ -88,6 +87,7 @@ a {
   background-size: auto calc(var(--header-height) / 2);
   background-position: 50% 0%;
   background-repeat: no-repeat;
+  padding: var(--spacer);
   padding-top: 0;
 
   display: flex;
@@ -169,6 +169,7 @@ a {
 
 .profile .follow {
   position: absolute;
+  z-index: 3;
   color: var(--blue);
   border: 1px solid var(--blue);
   border-radius: calc(1em + var(--spacer));
@@ -180,9 +181,9 @@ a {
 }
 
 .tweet {
-  border-bottom: 1px solid var(--grey);
-  padding-left: calc(var(--author-size) + var(--spacer));
-  padding-top: var(--spacer);
+  border-bottom: 1px solid var(--light-grey);
+  padding: var(--spacer);
+  padding-left: calc(var(--author-size) + 2 * var(--spacer));
 }
 
 .tweet .meta {
@@ -231,6 +232,8 @@ a {
 .tweet .media p {
   margin: 0;
 }
+
 .tweet .media p + p{
   margin-top: var(--spacer);
 }
+
