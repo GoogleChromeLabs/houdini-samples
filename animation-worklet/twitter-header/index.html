@@ -93,7 +93,7 @@ limitations under the License.
 
   async function init() {
     await animationWorklet.addModule('twitter-header-animator.js');
-    const scrollSource = document.body;
+    const scrollSource = document.scrollingElement;
     const bar = document.querySelector('.bar');
     const avatar = document.querySelector('.profile .avatar');
     const follow = document.querySelector('.profile .follow');
