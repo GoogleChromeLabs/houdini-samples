@@ -21,42 +21,57 @@ limitations under the License.
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <input id="springCount" name="springCount" type="number" value=10 maxlength=4> <label for="springCount"> springs</label>
   <ul>
-    <li> --spring-k: 1; --ratio:0.5 <div class="box" style="--spring-k: 1; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 2; --ratio:0.5 <div class="box" style="--spring-k: 2; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 3; --ratio:0.5 <div class="box" style="--spring-k: 3; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 4; --ratio:0.5 <div class="box" style="--spring-k: 4; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 5; --ratio:0.5 <div class="box" style="--spring-k: 5; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 1; --ratio:0.8 <div class="box" style="--spring-k: 1; --ratio: 0.8; --target: 500;"></div>
-    <li> --spring-k: 2; --ratio:0.8 <div class="box" style="--spring-k: 2; --ratio: 0.8; --target: 500;"></div>
-    <li> --spring-k: 3; --ratio:0.8 <div class="box" style="--spring-k: 3; --ratio: 0.8; --target: 500;"></div>
-    <li> --spring-k: 4; --ratio:0.8 <div class="box" style="--spring-k: 4; --ratio: 0.8; --target: 500;"></div>
-    <li> --spring-k: 5; --ratio:0.8 <div class="box" style="--spring-k: 5; --ratio: 0.8; --target: 500;"></div>
   </ul>
 </body>
 <!-- <script src="../anim-worklet.js"></script> -->
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    window.animationWorklet.addModule('spring-timing-animator.js').then(function() {
-      springAnimations = [];
-      for (elem of document.querySelectorAll('div.box')) {
-        var computedStyle = getComputedStyle(elem);
-        const options = {
-          k: parseFloat(computedStyle.getPropertyValue('--spring-k')),
-          ratio: parseFloat(computedStyle.getPropertyValue('--ratio')),
-          target: parseFloat(computedStyle.getPropertyValue('--target')),
-        };
-        // The full translation effect range should be larger than the intended
-        // target to allow the sping to overshoot.
-        const range = options.target * 2;
-        const effect = new KeyframeEffect(elem, [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range);
-        const animation = new WorkletAnimation('spring', effect, document.timeline, options);
-        animation.play();
-        springAnimations.push(animation);
-      }
-      console.log(springAnimations);
-    });
+  const springCountEl = document.getElementById('springCount');
+  const springContainerEl = document.querySelector('ul');
+  window.springAnimations = [];
+
+  window.animationWorklet.addModule('spring-timing-animator.js').then(function() {
+    springCountEl.addEventListener('input', createAnimations);
+    createAnimations();
   });
+
+  function createAnimations() {
+    // Clear container and cancel existing animations.
+    springContainerEl.textContent = '';
+
+    window.springAnimations.forEach((animation) => { animation.cancel() });
+    window.springAnimations = [];
+
+    const count = springCountEl.value;
+    for (let i = 0; i < count; i++) {
+      const target = appendSpringElement(springContainerEl);
+      const options = {
+        k: 1,
+        ratio: 0.5,
+        target: 500,
+      };
+
+      // The full translation effect range should be larger than the intended
+      // target to allow the sping to overshoot.
+      const range = options.target * 2;
+      const effect = new KeyframeEffect(target, [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range);
+      const animation = new WorkletAnimation('spring', effect, document.timeline, options);
+      animation.play();
+      window.springAnimations.push(animation);
+    }
+    console.log(window.springAnimations);
+  }
+
+  function appendSpringElement(container, options) {
+    const li = document.createElement('li');
+    const target = document.createElement('div');
+    target.classList.add('box');
+
+    li.appendChild(target);
+    container.appendChild(li);
+    return target;
+  }
 </script>
 
 </html>

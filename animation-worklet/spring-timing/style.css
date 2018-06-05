@@ -24,7 +24,7 @@ html, body {
   height: 100vh;
 }
 
-.box {
+li > div.box {
   height: 40px;
   width: 40px;
   border: 2px solid rgb(80, 80, 80);
