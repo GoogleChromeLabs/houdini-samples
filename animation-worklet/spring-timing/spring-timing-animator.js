@@ -15,28 +15,30 @@ limitations under the License.
 */
 registerAnimator('spring', class SpringAnimator {
   constructor(options) {
-    this.options = options;
+    if(!options) {
+      console.warn('Initial options was empty. Using a random spring ratio.');
+      options = {
+        k: 1,
+        ratio: 0.1 + Math.random()/2,
+        target: 500
+      };
+    }
+
+    this.options_ = options
+    console.log('Initializing spring animation with ', this.options_);
   }
 
   animate(currentTime, effect) {
-    for (var i = 0; i < effect.children.length; i++) {
-      var e = effect.children[i];
-      var params =this.options[i];
-      if (!e.springTiming_)  {
-        // initialize the simulation.
-        const k = params.k;
-        const ratio = Math.min(params.ratio, 1 - 1e-5);
-
-        e.startTime_ = currentTime;
-        e.springTiming_ = this.spring(k, ratio);
-      }
-      const target = params.target;
-      // TODO(majidvp): stop computing a new value once we are withing a certainer threshold of the target.
-      const dt_seconds = (currentTime - e.startTime_) / 1000;
-      const dv = target * e.springTiming_(dt_seconds);
-
-      e.localTime = dv;
+    if (!this.springTiming_)  {
+      // initialize the simulation.
+      this.springTiming_ =  this.spring(this.options_.k, this.options_.ratio);
     }
+
+    // TODO(majidvp): stop computing a new value once we are within a certain
+    // threshold of the target.
+    const dt_seconds = currentTime / 1000;
+    const dy_pixels = this.options_.target * this.springTiming_(dt_seconds);
+    effect.localTime = dy_pixels;
   }
 
   // Based on flutter spring simulation for an under-damped spring:
@@ -47,13 +49,16 @@ registerAnimator('spring', class SpringAnimator {
     const mass = 1;
     const distance = 1;
 
+    // Keep ratio < 1 to ensure it is under-damped.
+    ratio = Math.min(ratio, 1 - 1e-5);
+
     const damping = ratio * 2.0 * Math.sqrt(springConstant);
     const w = Math.sqrt(4.0 * springConstant - damping * damping) / (2.0 * mass);
     const r = -(damping / 2.0);
     const c1 = distance;
     const c2 = (velocity - r * distance) / w;
 
-    // return a valaue in [0..distance]
+    // return a value in [0..distance]
     return function springTiming(time) {
       const result = Math.pow(Math.E, r * time) *
                     (c1 * Math.cos(w * time) + c2 * Math.sin(w * time));

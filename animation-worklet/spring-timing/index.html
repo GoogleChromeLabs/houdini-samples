@@ -34,25 +34,27 @@ limitations under the License.
     <li> --spring-k: 5; --ratio:0.8 <div class="box" style="--spring-k: 5; --ratio: 0.8; --target: 500;"></div>
   </ul>
 </body>
-<script src="../anim-worklet.js"></script>
+<!-- <script src="../anim-worklet.js"></script> -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     window.animationWorklet.addModule('spring-timing-animator.js').then(function() {
-      var elems = document.querySelectorAll('div.box');
-      var effects = [];
-      var options = [];
-      for (var i = 0; i < elems.length; i++) {
-        var computedStyle = getComputedStyle(elems[i]);
-        options.push({
+      springAnimations = [];
+      for (elem of document.querySelectorAll('div.box')) {
+        var computedStyle = getComputedStyle(elem);
+        const options = {
           k: parseFloat(computedStyle.getPropertyValue('--spring-k')),
           ratio: parseFloat(computedStyle.getPropertyValue('--ratio')),
           target: parseFloat(computedStyle.getPropertyValue('--target')),
-        });
-        var range = options[options.length - 1].target * 2;
-        effects.push(new KeyframeEffect(elems[i], [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range));
+        };
+        // The full translation effect range should be larger than the intended
+        // target to allow the sping to overshoot.
+        const range = options.target * 2;
+        const effect = new KeyframeEffect(elem, [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range);
+        const animation = new WorkletAnimation('spring', effect, document.timeline, options);
+        animation.play();
+        springAnimations.push(animation);
       }
-      window.springAnimation = new WorkletAnimation('spring', effects, new DocumentTimeline(), options);
-      window.springAnimation.play();
+      console.log(springAnimations);
     });
   });
 </script>
