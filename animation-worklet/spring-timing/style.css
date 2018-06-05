@@ -27,11 +27,11 @@ html, body {
 li > div.box {
   height: 40px;
   width: 40px;
-  border: 2px solid rgb(80, 80, 80);
-  background-color: green;
+  margin: 5px;
+  border: 1px solid rgb(80, 80, 80);
+  background-color:hsla(120, 100%, 25%, var(--ratio));
 }
 
 li {
-  height: 80px;
   list-style: none;
 }
