@@ -68,6 +68,7 @@ limitations under the License.
     </section>
   </section>
 </section>
+
 <script>
   if (location.protocol === 'http:' && location.hostname !== 'localhost') {
     location.protocol = 'https:';
@@ -108,8 +109,7 @@ limitations under the License.
         {opacity: 1},
       ],
       {
-        duration: /*timeWhenAvatarTouchesTop*/ 0,
-        fill: 'both',
+        duration: timeRange/*timeWhenAvatarTouchesTop*/,
       }
     );
     new WorkletAnimation(
@@ -127,7 +127,6 @@ limitations under the License.
       ],
       {
         duration: timeRange,
-        fill: 'both',
       }
     );
     new WorkletAnimation(
@@ -146,7 +145,6 @@ limitations under the License.
       ],
       {
         duration: timeRange,
-        fill: 'both',
       }
     );
     new WorkletAnimation(
@@ -166,7 +164,6 @@ limitations under the License.
       ],
       {
         duration: timeRange,
-        fill: 'both',
       }
     );
     new WorkletAnimation(
