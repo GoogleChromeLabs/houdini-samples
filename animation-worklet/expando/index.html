@@ -72,10 +72,9 @@ limitations under the License.
     </div>
   </div>
 </body>
-<script src="../anim-worklet.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    window.animationWorklet.addModule('expand-animator.js').then(function(){
+  window.addEventListener('load', function() {
+    window.animationWorklet.addModule('expando-animator.js').then(function(){
       var expando = document.querySelector('.expando');
       var offset = document.querySelector('.expando .offset');
       var content = document.querySelector('.expando .content');
@@ -83,16 +82,25 @@ limitations under the License.
       var largeContent = document.querySelector('.expando .large');
       var expandScale = 13;
       var effectOptions = {duration: 1, fill: 'both'};
-      window.expandoAnimator = new WorkletAnimation('expand', [
-          new KeyframeEffect(expando, [{'transform': 'scale(1)'}, {'transform': 'scale(' + expandScale + ')'}], effectOptions),
-          new KeyframeEffect(content, [{'transform': 'scale(1)'}, {'transform': 'scale(' + (1 / expandScale) + ')'}], effectOptions),
-          new KeyframeEffect(offset, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + (0.5 * expando.clientWidth * (expandScale - 1)) + 'px)'}], effectOptions),
-          new KeyframeEffect(smallContent, [{'opacity': 1}, {'opacity': 0}], effectOptions),
-          new KeyframeEffect(largeContent, [{'opacity': 0}, {'opacity': 1}], effectOptions),
-        ], new DocumentTimeline(), {'expandScale': expandScale});
+
+      const expando_effect = new KeyframeEffect(expando, [{'transform': 'scale(1)'}, {'transform': 'scale(' + expandScale + ')'}], effectOptions);
+      const content_effect = new KeyframeEffect(content, [{'transform': 'scale(1)'}, {'transform': 'scale(' + (1 / expandScale) + ')'}], effectOptions);
+      const offset_effect = new KeyframeEffect(offset, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + (0.5 * expando.clientWidth * (expandScale - 1)) + 'px)'}], effectOptions);
+      const smallContent_effect = new KeyframeEffect(smallContent, [{'opacity': 1}, {'opacity': 0}], effectOptions);
+      const largeContent_effect = new KeyframeEffect(largeContent, [{'opacity': 0}, {'opacity': 1}], effectOptions);
+
+      window.expandoAnimator = new WorkletAnimation('expando', expando_effect, new DocumentTimeline(), {'expandScale': expandScale});
+      window.contentAnimator = new WorkletAnimation('reverseExpando', content_effect, new DocumentTimeline(), {'expandScale': expandScale});
+      window.offsetAnimator = new WorkletAnimation('expando', offset_effect, new DocumentTimeline(), {'expandScale': expandScale});
+      window.smallContentAnimator = new WorkletAnimation('expando', smallContent_effect, new DocumentTimeline(), {'expandScale': expandScale});
+      window.largeContentAnimator = new WorkletAnimation('expando', largeContent_effect, new DocumentTimeline(), {'expandScale': expandScale});
+
       window.expandoAnimator.play();
+      window.contentAnimator.play();
+      window.offsetAnimator.play();
+      window.smallContentAnimator.play();
+      window.largeContentAnimator.play();
     });
   });
 </script>
-
 </html>
