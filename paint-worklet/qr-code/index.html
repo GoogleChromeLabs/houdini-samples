@@ -1,0 +1,30 @@
+<!doctype html>
+<textarea id="qrcode"></textarea>
+<br />
+<br />
+<span>Text to be encoded:</span>
+<input type="text" id="input">
+<br />
+<span class="hint">Hint: try resizing the QR code by grabbing the bottom right corner!</span>
+
+<style>
+    #qrcode {
+        --size: 200px;
+        width: var(--size);
+        height: var(--size);
+        background-color:blanchedalmond;
+        background-image: paint(radio-button);
+        border: 2px solid black;
+    }
+
+    .hint {
+        font-size: .8em;
+    }
+</style>
+
+<script>
+    (CSS.paintWorklet || paintWorklet).addModule('paintworklet.js');
+    document.querySelector('#input').addEventListener('keyup', (e) => {
+        document.querySelector('#qrcode').style.setProperty('--text', e.srcElement.value);
+    });
+</script>
