@@ -21,40 +21,65 @@ limitations under the License.
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <input id="springCount" name="springCount" type="number" value=40 maxlength=4> <label for="springCount"> springs</label>
   <ul>
-    <li> --spring-k: 1; --ratio:0.5 <div class="box" style="--spring-k: 1; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 2; --ratio:0.5 <div class="box" style="--spring-k: 2; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 3; --ratio:0.5 <div class="box" style="--spring-k: 3; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 4; --ratio:0.5 <div class="box" style="--spring-k: 4; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 5; --ratio:0.5 <div class="box" style="--spring-k: 5; --ratio: 0.5; --target: 500;"></div>
-    <li> --spring-k: 1; --ratio:0.8 <div class="box" style="--spring-k: 1; --ratio: 0.8; --target: 500;"></div>
-    <li> --spring-k: 2; --ratio:0.8 <div class="box" style="--spring-k: 2; --ratio: 0.8; --target: 500;"></div>
-    <li> --spring-k: 3; --ratio:0.8 <div class="box" style="--spring-k: 3; --ratio: 0.8; --target: 500;"></div>
-    <li> --spring-k: 4; --ratio:0.8 <div class="box" style="--spring-k: 4; --ratio: 0.8; --target: 500;"></div>
-    <li> --spring-k: 5; --ratio:0.8 <div class="box" style="--spring-k: 5; --ratio: 0.8; --target: 500;"></div>
   </ul>
 </body>
-<script src="../anim-worklet.js"></script>
+<!-- <script src="../anim-worklet.js"></script> -->
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    window.animationWorklet.addModule('spring-timing-animator.js').then(function() {
-      var elems = document.querySelectorAll('div.box');
-      var effects = [];
-      var options = [];
-      for (var i = 0; i < elems.length; i++) {
-        var computedStyle = getComputedStyle(elems[i]);
-        options.push({
-          k: parseFloat(computedStyle.getPropertyValue('--spring-k')),
-          ratio: parseFloat(computedStyle.getPropertyValue('--ratio')),
-          target: parseFloat(computedStyle.getPropertyValue('--target')),
-        });
-        var range = options[options.length - 1].target * 2;
-        effects.push(new KeyframeEffect(elems[i], [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range));
-      }
-      window.springAnimation = new WorkletAnimation('spring', effects, new DocumentTimeline(), options);
-      window.springAnimation.play();
-    });
+  const BUCKET_SIZE = 10;
+
+  const springCountEl = document.getElementById('springCount');
+  const springContainerEl = document.querySelector('ul');
+  window.springAnimations = [];
+
+  window.animationWorklet.addModule('spring-timing-animator.js').then(function() {
+    springCountEl.addEventListener('input', createAnimations);
+    createAnimations();
   });
+
+  function createAnimations() {
+    // Clear container and cancel existing animations.
+    springContainerEl.textContent = '';
+    window.springAnimations.forEach((animation) => { animation.cancel() });
+    window.springAnimations = [];
+
+    const count = springCountEl.value;
+    for (let i = 0; i < count; i++) {
+      const options = {
+        k: 1 + (i % BUCKET_SIZE),  // [1 to BUCKET_SIZE]
+        ratio: Math.floor(i/BUCKET_SIZE + 1) / Math.ceil(count/BUCKET_SIZE),  // (0 to 1), but step every BUCKET_SIZE
+        target: 500,
+      };
+
+      const target = appendSpringElement(springContainerEl, options);
+      const animation = createAnimation(target, options);
+
+      animation.play();
+      window.springAnimations.push(animation);
+    }
+    //console.log(window.springAnimations);
+  }
+
+  function createAnimation(targetEl, options) {
+    // The full translation effect range should be larger than the intended
+    // target to allow the sping to overshoot.
+    const range = options.target * 2;
+    const effect = new KeyframeEffect(targetEl, [{'transform': 'translateX(0)'}, {'transform': 'translateX(' + range + 'px)'}], range);
+    return new WorkletAnimation('spring', effect, document.timeline, options);
+  }
+
+  function appendSpringElement(containerEl, options) {
+    const li = document.createElement('li');
+    const target = document.createElement('div');
+    li.textContent = `r=${options.ratio}, k=${options.k}`;
+    target.classList.add('box');
+    target.style.setProperty('--ratio', options.ratio);
+
+    li.appendChild(target);
+    containerEl.appendChild(li);
+    return target;
+  }
 </script>
 
 </html>
