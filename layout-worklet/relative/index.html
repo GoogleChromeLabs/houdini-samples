@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<!--
+Copyright 2018 Google, Inc. All Rights Reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html>
+<link href="https://fonts.googleapis.com/css?family=Bungee+Shade&amp;text=A" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Black+Ops+One&amp;text=B" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Megrim&amp;text=C" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Finger+Paint&amp;text=D" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Faster+One&amp;text=E" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Fredericka+the+Great&amp;text=FHoudiniLayoutConstraint-" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Nixie+One&amp;text=G" rel="stylesheet">
+<style>
+body { margin: 0; }
+#layout { margin: 10px; border: solid 4px #c9ceb7; height: 400px; background: #E0E4CC; overflow: hidden; resize: both; }
+#actual-layout { height: 100%; display: layout(relative); }
+#actual-layout > div {
+	font-size: 72px;
+  color: white;
+  text-align: center;
+
+  padding: 10px;
+	width: fit-content;
+	contain: paint;
+	resize: both;
+
+  display: flex;
+	align-items: center;
+}
+#slider {
+	font-family: monospace;
+	margin: 20px;
+}
+#slider > div { margin: auto; padding: 10px; width: max-content; border: solid 4px #c9ceb7; }
+h1 { font-family: 'Fredericka the Great', cursive; font-size: 48px; text-align: center; margin: 10px; }
+table { margin: 10px; border: solid 4px #c9ceb7; margin: auto; }
+tr { border-bottom: solid 2px #ccc; }
+td { text-align: center; padding: 2px; }
+input, button, option, select, table { font-family: monospace; }
+input { width: 40px; }
+#A { --relative-name: A; font-family: 'Bungee Shade', cursive; border: solid 4px #5dbdd0; background: #67d2e7; }
+#B { --relative-name: B; font-family: 'Black Ops One', cursive; border: solid 4px #96c6c2; background: #a7dcd9; }
+#C { --relative-name: C; font-family: 'Megrim', cursive; border: solid 4px #db772c; background: #f38530; }
+#D { --relative-name: D; font-family: 'Finger Paint', cursive; border: solid 4px #e05d05; background: #fa6803; }
+#E { --relative-name: E; font-family: 'Faster One', cursive; border: solid 4px #cede7e; background: #e6f78d; }
+#F { --relative-name: F; font-family: 'Fredericka the Great', cursive; border: solid 4px #7cc800; background: #8bde00; }
+#G { --relative-name: G; font-family: 'Nixie One', cursive; border: solid 4px #975aa2; background: #a865b5; }
+</style>
+<body>
+	<h1>Houdini - Constraint Layout</h1>
+  <div id="layout">
+    <div id="actual-layout">
+			<div id="A">A</div>
+			<div style="display: none;" id="B">B</div>
+			<div style="display: none;" id="C">C</div>
+			<div style="display: none;" id="D">D</div>
+			<div style="display: none;" id="E">E</div>
+			<div style="display: none;" id="F">F</div>
+			<div style="display: none;" id="G">G</div>
+		</div>
+	</div>
+  <div id="slider">
+    <div>
+			Children Count: <input value="1" style="width: 200px;" type="range" min="1" max="7">
+    </div>
+	</div>
+  <div id="controls"></div>
+  <script type="module">
+		import {html, render} from 'https://unpkg.com/lit-html/lib/lit-extended.js?module';
+
+		CSS.layoutWorklet.addModule('layout.js');
+
+    const constraintOps = [
+			'',
+			'above',
+			'below',
+			'left-of',
+			'right-of',
+			'align-top',
+			'align-bottom',
+			'align-left',
+			'align-right',
+			'align-parent-top',
+			'align-parent-bottom',
+			'align-parent-left',
+			'align-parent-right',
+			'center-horizontal',
+			'center-vertical',
+		];
+
+		const childNames = [
+			'',
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+    ];
+
+		const queries = [
+			'',
+			'min-width',
+			'max-width',
+    ];
+
+		function constraintOpHasNoDest(op) {
+			switch (op) {
+				case 'align-parent-top':
+				case 'align-parent-bottom':
+				case 'align-parent-left':
+				case 'align-parent-right':
+				case 'center-horizontal':
+				case 'center-vertical':
+					return true;
+				default:
+					return false;
+      }
+    }
+
+		function updateRelativeStyle(constraints) {
+			const str = constraints.reduce((acc, {target, op, dest, query, queryLength, valid}) => {
+				if (!valid)
+					return acc;
+
+				let queryStr = '';
+				if (query !== '' && queryLength !== null) {
+				  queryStr = `/ ${query} ${queryLength}`;
+        }
+
+				return acc + `, ${target} ${op} ${dest} ${queryStr}`;
+			}, '');
+			document.getElementById('actual-layout').style.setProperty('--relative-constraints', str);
+    }
+
+    const selectTmpl = (items, selected, disabled) => html`
+      <select disabled="${disabled}">
+				${items.map((item) => html`${selected === item ? html`<option selected>${item}</option>` : html`<option>${item}</option>`}`)}
+      </select>
+    `;
+
+		const rowTmpl = (constraint) => html`
+			<tr class="row">
+				<td>${selectTmpl(childNames, constraint.target, false)}</td>
+				<td>${selectTmpl(constraintOps, constraint.op, false)}</td>
+				<td>${selectTmpl(childNames, constraint.dest, constraintOpHasNoDest(constraint.op))}</td>
+				<td>/</td>
+				<td>${selectTmpl(queries, constraint.query)}</td>
+				<td><input min="0" step="20" type="number">px</td>
+				<td><button>Remove</button></td>
+				<td><span>${constraint.valid ? html`&#x2705` : html`&#x274C`}</span></td>
+      </tr>
+    `;
+
+		const tableTmpl = (constraints) => html`
+			<table>
+				<thead>
+					<td></td>
+					<td>Constraint<td>
+					<td>/</td>
+					<td>Element Query</td>
+					<td></td>
+					<td></td>
+					<td>Valid?</td>
+  			<thead>
+				${constraints.map((constraint) => rowTmpl(constraint))}
+				<tfoot>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td><button>Add</button></td>
+  			<tfoot>
+      </table>
+    `;
+
+		let constraints = [
+      {target: '', op: '', dest: '', query: '', queryLength: null, valid: false},
+		];
+
+		const controlsEl = document.getElementById('controls');
+		const sliderEl = document.getElementById('slider');
+		const actualLayoutEl = document.getElementById('actual-layout');
+
+		render(tableTmpl(constraints), controlsEl);
+
+		// This event listener code is amazing - please don't copy it.
+		controlsEl.addEventListener('change', (evt) => {
+			const rows = document.getElementsByClassName('row');
+			constraints = [];
+			let changedConstraint = null;
+
+			for (let row of rows) {
+				const selects = Array.from(row.getElementsByTagName('select'));
+				const [target, op, dest, query] = selects.map(select => select.children[select.selectedIndex].textContent);
+				const valid = row.getElementsByTagName('span')[0].textContent === '\u2705';
+				const queryLength = parseInt(row.getElementsByTagName('input')[0].value) || null;
+        const newConstraint = {target, op, dest, query, queryLength, valid};
+				if (selects.find((select) => select === evt.target)) {
+					changedConstraint = newConstraint;
+				}
+				constraints.push(newConstraint);
+			}
+
+			if (changedConstraint) {
+				const noDest = constraintOpHasNoDest(changedConstraint.op);
+				if (noDest) {
+					changedConstraint.dest = '';
+				}
+
+				if (changedConstraint.target !== '' &&
+						changedConstraint.op !== '' &&
+						(noDest || changedConstraint.dest !== '')) {
+					changedConstraint.valid = true;
+				}
+			}
+
+			updateRelativeStyle(constraints);
+			render(tableTmpl(constraints), controlsEl);
+		});
+
+		sliderEl.addEventListener('change', (evt) => {
+			const layoutChildren = Array.from(actualLayoutEl.children);
+			for (let i = 0; i < layoutChildren.length; i++) {
+				layoutChildren[i].style.display = (i < evt.target.value) ? '' : 'none';
+      }
+    });
+
+		controlsEl.addEventListener('click', (evt) => {
+			if (evt.target.tagName !== 'BUTTON')
+				return;
+
+			if (evt.target.textContent === 'Add') {
+				constraints.push({target: '', op: '', dest: '', query: '', queryLength: null, valid: false});
+				updateRelativeStyle(constraints);
+				render(tableTmpl(constraints), controlsEl);
+				return;
+      }
+
+			if (evt.target.textContent === 'Remove') {
+				const rows = document.getElementsByClassName('row');
+				for (let i = 0; i < rows.length; i++) {
+					if (rows[i].contains(evt.target)) {
+						constraints.splice(i, 1);
+						updateRelativeStyle(constraints);
+						render(tableTmpl(constraints), controlsEl);
+						return;
+          }
+        }
+
+      }
+    });
+  </script>
+</body>
+</html>
+
