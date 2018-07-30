@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<html>
+<html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
@@ -55,8 +55,13 @@ limitations under the License.
       </section>
       <script src="../anim-worklet.js"></script>
       <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          window.animationWorklet.addModule('twitter-header-animator.js').then(function(){
+        // This demo uses multiple timelines which is not implemented natively
+        // so we need to depend on polyfill. Force polyfill to export its
+        // symbols.
+        window.animationWorkletPolyfillPromise = window.animationWorkletPolyfillPromise || window.animationWorkletPolyfill.exportSymbols(window);
+
+        (window.animationWorkletPolyfillPromise || Promise.resolve()).then(_=> {
+          CSS.animationWorklet.addModule('twitter-header-animator.js').then(function(){
             var scroller = document.getElementById('scroller');
             var avatar = document.querySelector('.avatar');
             var avatarPicture = avatar.querySelector('img');
@@ -64,7 +69,7 @@ limitations under the License.
             var barSection = bar.querySelector('section');
             var scrollRange = (scroller.scrollHeight - scroller.clientHeight);
             var primaryTimeline = new ScrollTimeline({scrollSource: scroller, orientation: 'vertical', phase: true});
-            window.twitterAnimation = new WorkletAnimation('twitter-header', [
+            twitterAnimation = new WorkletAnimation('twitter-header', [
                 new KeyframeEffect(avatarPicture, [{'transform': 'translate(0, 0) scale(1)'}, {'transform': 'translate(-27px, 0) scale(0.4)'}], {duration: 144, fill: 'both'}),
                 new KeyframeEffect(avatar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
                 new KeyframeEffect(bar, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange),
@@ -76,7 +81,7 @@ limitations under the License.
                     endScrollOffset: '144px', timeRange: 144}),
                 scrollRange: scrollRange,
               });
-            window.twitterAnimation.play();
+            twitterAnimation.play();
           });
         });
       </script>

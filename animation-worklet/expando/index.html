@@ -72,9 +72,11 @@ limitations under the License.
     </div>
   </div>
 </body>
+
+<script src="../anim-worklet.js"></script>
 <script>
-  window.addEventListener('load', function() {
-    window.animationWorklet.addModule('expando-animator.js').then(function(){
+  (window.animationWorkletPolyfillPromise || Promise.resolve()).then(_=> {
+    CSS.animationWorklet.addModule('expando-animator.js').then(function(){
       var expando = document.querySelector('.expando');
       var offset = document.querySelector('.expando .offset');
       var content = document.querySelector('.expando .content');

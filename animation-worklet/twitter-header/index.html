@@ -72,9 +72,14 @@ limitations under the License.
   if (location.protocol === 'http:' && location.hostname !== 'localhost') {
     location.protocol = 'https:';
   }
-  if (!('animationWorklet' in self)) {
+  var animationWorklet = window.animationWorklet;
+  if (CSS)
+    animationWorklet = CSS.animationWorklet;
+
+  if (!animationWorklet) {
     document.body.innerHTML = 'You need support for <a href="https://wicg.github.io/animation-worklet/">Animation Worklet</a> to view this demo :(';
   }
+
   [
     '--avatar-size',
     '--avatar-border',
