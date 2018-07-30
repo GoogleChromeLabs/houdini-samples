@@ -16,8 +16,6 @@ limitations under the License.
 (function(scope) {
   "use strict";
 
-  // Create scope.CSS if it does not exist.
-  scope.CSS = scope.CSS || {};
 
   function loadScript(src) {
     return new Promise(function(resolve, reject) {
@@ -38,22 +36,6 @@ limitations under the License.
       document.write('<script src="' + src +'"></script>');
       document.addEventListener('DOMContentLoaded', resolve);
     });
-  }
-
-  // Returns true if AnimationWorklet is natively supported.
-  function hasNativeSupport() {
-    for (var namespace of [scope, scope.CSS]) {
-      if (namespace.animationWorklet && namespace.animationWorklet.addModule)
-        return true;
-    }
-    return false;
-  }
-
-  if (hasNativeSupport()) {
-    if (!scope.CSS.animationWorklet)
-      scope.CSS.animationWorklet = window.animationWorklet;
-
-    return;
   }
 
   var pendingAnimations = {};
@@ -212,12 +194,12 @@ limitations under the License.
     }
 
     function scrollOffsetConst(offset, scrollSource) {
-       offset;
+       return offset;
     }
 
     function scrollOffsetPercent(percent, scrollSource) {
-      ewHeight = scrollSource == document.scrollingElement ? window.innerHeight : scrollSource.clientHeight;
-       (scrollSource.scrollHeight - viewHeight) * percent;
+      var viewHeight = scrollSource == document.scrollingElement ? window.innerHeight : scrollSource.clientHeight;
+      return (scrollSource.scrollHeight - viewHeight) * percent;
     }
 
     function calculateScrollOffset(scrollSource, position) {
@@ -454,14 +436,14 @@ limitations under the License.
       }
     }
 
-    function exportSymbols(window, CSS) {
+    function exportSymbols(window) {
       function _export(){
         window.WorkletAnimationKeyframeEffect = KeyframeEffect;
         window.WorkletAnimation = WorkletAnimation;
         window.ScrollTimeline = ScrollTimeline;
         window.DocumentTimeline = DocumentTimeline;
         window.registerAnimator = registerAnimator;
-        CSS.animationWorklet = new AnimationWorklet();
+        window.CSS.animationWorklet = new AnimationWorklet();
 
         // Replace default keyframe effect with animation worklet version, and
         // document timeline with our version.
@@ -506,7 +488,32 @@ limitations under the License.
     return this.substring(0, s.length) == s;
   };
 
+  // Returns true if AnimationWorklet is natively supported.
+  function hasNativeSupport() {
+    for (var namespace of [scope, scope.CSS]) {
+      if (namespace.animationWorklet && namespace.animationWorklet.addModule)
+        return true;
+    }
+    return false;
+  }
+
+  // Create scope.CSS if it does not exist.
+  scope.CSS = scope.CSS || {};
+
+  // Create a polyfill instance but don't export any of its symbols.
   scope.animationWorkletPolyfill = MainThreadAnimationWorklet();
-  scope.animationWorkletPolyfillPromise = scope.animationWorkletPolyfill.exportSymbols(scope, CSS);
+
+  // Export polyfill symbols only if there is no native support.
+  // It is still posible to force symbols to be exported by directly calling
+  // |window.animationWorkletPolyfill.exportSymbols(window). This is useful
+  // if your demo depends on AW features that are not yet implemented (e.g.,
+  // multiple timeline, or multiple effects)
+  if (hasNativeSupport()) {
+    // ensure AW is always present in CSS namespace.
+    if (!scope.CSS.animationWorklet)
+      scope.CSS.animationWorklet = scope.animationWorklet;
+  } else {
+     scope.animationWorkletPolyfillPromise = scope.animationWorkletPolyfill.exportSymbols(scope);
+  }
 
 })(self);
