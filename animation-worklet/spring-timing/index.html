@@ -25,15 +25,17 @@ limitations under the License.
   <ul>
   </ul>
 </body>
-<!-- <script src="../anim-worklet.js"></script> -->
+<script src="../anim-worklet.js"></script>
 <script>
+(window.animationWorkletPolyfillPromise || Promise.resolve()).then(_=> {
+
   const BUCKET_SIZE = 10;
 
   const springCountEl = document.getElementById('springCount');
   const springContainerEl = document.querySelector('ul');
   window.springAnimations = [];
 
-  window.animationWorklet.addModule('spring-timing-animator.js').then(function() {
+  CSS.animationWorklet.addModule('spring-timing-animator.js').then(function() {
     springCountEl.addEventListener('input', createAnimations);
     createAnimations();
   });
@@ -80,6 +82,7 @@ limitations under the License.
     containerEl.appendChild(li);
     return target;
   }
+});
 </script>
 
 </html>

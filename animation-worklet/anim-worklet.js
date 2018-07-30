@@ -16,36 +16,53 @@ limitations under the License.
 (function(scope) {
   "use strict";
 
-  // Ensure the WebAnimations polyfill is loaded.
-  if (!scope.webAnimations1) {
-    document.write('<script src="https://rawgit.com/web-animations/web-animations-js/master/web-animations-next.dev.js"></script>');
-    document.addEventListener('DOMContentLoaded', function() {
-      window.KeyframeEffect = window.WorkletAnimationKeyframeEffect;
+  // Create scope.CSS if it does not exist.
+  scope.CSS = scope.CSS || {};
+
+  function loadScript(src) {
+    return new Promise(function(resolve, reject) {
+      var script = document.createElement('script');
+      script.src = src;
+      script.onload = function() {
+        resolve();
+      }
+      script.onerror = function() {
+        reject(Error('Failed to load ' + src));
+      }
+      document.body.appendChild(script);
     });
+  }
+
+  function loadScriptSync(src) {
+    return new Promise(function(resolve, reject) {
+      document.write('<script src="' + src +'"></script>');
+      document.addEventListener('DOMContentLoaded', resolve);
+    });
+  }
+
+  // Returns true if AnimationWorklet is natively supported.
+  function hasNativeSupport() {
+    for (var namespace of [scope, scope.CSS]) {
+      if (namespace.animationWorklet && namespace.animationWorklet.addModule)
+        return true;
+    }
+    return false;
+  }
+
+  if (hasNativeSupport()) {
+    if (!scope.CSS.animationWorklet)
+      scope.CSS.animationWorklet = window.animationWorklet;
+
+    return;
   }
 
   var pendingAnimations = {};
 
   var MainThreadAnimationWorklet = function() {
-    function importOnMain(src) {
-      console.warn('Using main thread polyfill of AnimationWorklet, animations will not be performance isolated.');
-      return new Promise(function(resolve, reject) {
-        var script = document.createElement('script');
-        script.src = src;
-        script.onload = function() {
-          resolve();
-        }
-        script.onerror = function() {
-          reject(Error('Failed to load ' + src));
-        }
-        document.body.appendChild(script);
-      });
-    }
-
     var workletInstanceMap = new WeakMap();
     var ctors = {};
     // This is invoked in the worklet to register |name|.
-    scope.registerAnimator = function(name, ctor) {
+    function registerAnimator(name, ctor) {
       if (ctors[name])
         throw new Error('Animator ' + name + ' is already registered.');
       ctors[name] = ctor;
@@ -195,12 +212,12 @@ limitations under the License.
     }
 
     function scrollOffsetConst(offset, scrollSource) {
-      return offset;
+       offset;
     }
 
     function scrollOffsetPercent(percent, scrollSource) {
-      var viewHeight = scrollSource == document.scrollingElement ? window.innerHeight : scrollSource.clientHeight;
-      return (scrollSource.scrollHeight - viewHeight) * percent;
+      ewHeight = scrollSource == document.scrollingElement ? window.innerHeight : scrollSource.clientHeight;
+       (scrollSource.scrollHeight - viewHeight) * percent;
     }
 
     function calculateScrollOffset(scrollSource, position) {
@@ -428,16 +445,48 @@ limitations under the License.
           }
         }
       }
-
     }
 
-    scope.WorkletAnimationKeyframeEffect = KeyframeEffect;
-    scope.WorkletAnimation = WorkletAnimation;
-    scope.ScrollTimeline = ScrollTimeline;
-    scope.DocumentTimeline = DocumentTimeline;
+    class AnimationWorklet {
+      addModule(url) {
+        console.warn('Using main thread polyfill of AnimationWorklet, animations will not be performance isolated.');
+        return loadScript(url);
+      }
+    }
+
+    function exportSymbols(window, CSS) {
+      function _export(){
+        window.WorkletAnimationKeyframeEffect = KeyframeEffect;
+        window.WorkletAnimation = WorkletAnimation;
+        window.ScrollTimeline = ScrollTimeline;
+        window.DocumentTimeline = DocumentTimeline;
+        window.registerAnimator = registerAnimator;
+        CSS.animationWorklet = new AnimationWorklet();
+
+        // Replace default keyframe effect with animation worklet version, and
+        // document timeline with our version.
+        window.KeyframeEffect = window.WorkletAnimationKeyframeEffect;
+
+        var docTimeline = new DocumentTimeline();
+        try {
+          Object.defineProperty(window.document, 'timeline', {
+            configurable: true,
+            get: function() { return docTimeline; }
+          });
+        } catch (e) { console.warn(e);}
+      }
+
+      // Ensure the WebAnimations polyfill is loaded.
+      if (!window.webAnimations1) {
+        return loadScriptSync('https://rawgit.com/web-animations/web-animations-js/master/web-animations-next.dev.js').then(_export);
+      } else {
+        return Promise.resolve(_export());
+      }
+    }
+
     return {
-      'addModule': importOnMain,
-    }
+      'exportSymbols' : exportSymbols
+    };
   };
 
   // Minimal Promise implementation for browsers which do not have promises.
@@ -457,36 +506,7 @@ limitations under the License.
     return this.substring(0, s.length) == s;
   };
 
-  function get(url) {
-    return new Promise(function(resolve, reject) {
-      var req = new XMLHttpRequest();
-      // TODO(flackr): Figure out why we keep getting stale response when using 'GET'.
-      req.open('GET', url);
-
-      req.onload = function() {
-        if (req.status == 200)
-          resolve(req.response);
-        else
-          reject(Error(req.statusText));
-      };
-
-      req.onerror = function() {
-        reject(Error("Network error"));
-      };
-
-      req.send();
-    });
-  }
-
-  // TODO(flackr): Get CompositorWorkerAnimationWorklet polyfill working with new API.
   scope.animationWorkletPolyfill = MainThreadAnimationWorklet();
-
-  if (scope.animationWorklet) {
-    // scope.animationWorklet is read-only but we can polyfill addModule()
-    if (!scope.animationWorklet.addModule)
-      scope.animationWorklet.addModule = scope.animationWorkletPolyfill.addModule;
-  } else {
-    scope.animationWorklet = scope.animationWorkletPolyfill;
-  }
+  scope.animationWorkletPolyfillPromise = scope.animationWorkletPolyfill.exportSymbols(scope, CSS);
 
 })(self);
