@@ -406,6 +406,18 @@ limitations under the License.
         return [this.effect];
       }
 
+      getCurrentTime_(timelineTime) {
+        // Don't offset scroll timeline's current time.
+        if (this.timeline instanceof ScrollTimeline) {
+          return this.timeline.currentTime;
+        }
+
+        if (typeof this.startTime_ == "undefined")
+          this.startTime_ = this.timeline.currentTime;
+
+        return this.timeline.currentTime - this.startTime_;
+      }
+
       setNeedsUpdate_() {
         if (this.playState != 'running' ||
             this.needsUpdate_) return;
@@ -414,7 +426,7 @@ limitations under the License.
       }
 
       updateAnimation_() {
-        this.instance_.animate(this.timeline.currentTime, this.effect);
+        this.instance_.animate(this.getCurrentTime_(), this.effect);
         this.needsUpdate_ = false;
         // If this animation has any document timelines it will need an update
         // next frame.
