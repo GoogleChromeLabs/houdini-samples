@@ -194,7 +194,7 @@ limitations under the License.
     }
 
     function scrollOffsetConst(offset, scrollSource) {
-       return offset;
+      return offset;
     }
 
     function scrollOffsetPercent(percent, scrollSource) {
