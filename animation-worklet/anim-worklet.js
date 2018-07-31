@@ -448,26 +448,27 @@ limitations under the License.
       }
     }
 
+    function redefineGetter(obj, prop, value) {
+      Object.defineProperty(Object, prop, {
+        configurable: true,
+        get: function() { return value; }
+      });
+    }
+
     function exportSymbols(window) {
       function _export(){
+        window.registerAnimator = registerAnimator;
+
         window.WorkletAnimationKeyframeEffect = KeyframeEffect;
         window.WorkletAnimation = WorkletAnimation;
         window.ScrollTimeline = ScrollTimeline;
         window.DocumentTimeline = DocumentTimeline;
-        window.registerAnimator = registerAnimator;
-        window.CSS.animationWorklet = new AnimationWorklet();
-
         // Replace default keyframe effect with animation worklet version, and
         // document timeline with our version.
         window.KeyframeEffect = window.WorkletAnimationKeyframeEffect;
+        redefineGetter(window.document, 'timeline', new DocumentTimeline())
 
-        var docTimeline = new DocumentTimeline();
-        try {
-          Object.defineProperty(window.document, 'timeline', {
-            configurable: true,
-            get: function() { return docTimeline; }
-          });
-        } catch (e) { console.warn(e);}
+        redefineGetter(window.CSS, 'animationWorklet', new AnimationWorklet())
       }
 
       // Ensure the WebAnimations polyfill is loaded.
