@@ -27,8 +27,7 @@ limitations under the License.
 </body>
 <script src="../anim-worklet.js"></script>
 <script>
-(window.animationWorkletPolyfillPromise || Promise.resolve()).then(_=> {
-
+window.animationWorkletPolyfill.load().then(_=> {
   const BUCKET_SIZE = 10;
 
   const springCountEl = document.getElementById('springCount');

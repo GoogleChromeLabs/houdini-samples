@@ -112,9 +112,7 @@ limitations under the License.
 <script>
 // This demo uses multiple effects so we need to depend on polyfill. Force
 // polyfill to export its symbols.
-window.animationWorkletPolyfillPromise = window.animationWorkletPolyfillPromise || window.animationWorkletPolyfill.exportSymbols(window, CSS);
-
-window.animationWorkletPolyfillPromise.then(_=> {
+window.animationWorkletPolyfill.load(true /* forced */).then(_=> {
   CSS.animationWorklet.addModule('spring-sticky-animator.js').then(_=> {
     var scroller = document.getElementById('scroller');
     // Hack to be able to convert ScrollTimeline back into scroll position.

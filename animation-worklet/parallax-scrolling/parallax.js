@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   } else {
     console.log('Using animation worklet');
-    (window.animationWorkletPolyfillPromise || Promise.resolve()).then(_=> {
+    window.animationWorkletPolyfill.load().then(_=> {
       CSS.animationWorklet.addModule('parallax-animator.js').then(function(){
         var scrollRange = scroller.scrollHeight - scroller.clientHeight;
         window.parallaxAnimator = new WorkletAnimation('parallax',

@@ -58,9 +58,7 @@ limitations under the License.
         // This demo uses multiple timelines which is not implemented natively
         // so we need to depend on polyfill. Force polyfill to export its
         // symbols.
-        window.animationWorkletPolyfillPromise = window.animationWorkletPolyfillPromise || window.animationWorkletPolyfill.exportSymbols(window);
-
-        (window.animationWorkletPolyfillPromise || Promise.resolve()).then(_=> {
+        window.animationWorkletPolyfill.load(true /* forced */).then(_=> {
           CSS.animationWorklet.addModule('twitter-header-animator.js').then(function(){
             var scroller = document.getElementById('scroller');
             var avatar = document.querySelector('.avatar');
