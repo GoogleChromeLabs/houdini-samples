@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+<html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
@@ -109,19 +110,23 @@ limitations under the License.
 </div>
 <script src="../anim-worklet.js"></script>
 <script>
-window.animationWorklet.addModule('spring-sticky-animator.js');
-document.addEventListener('DOMContentLoaded', function() {
-  var scroller = document.getElementById('scroller');
-  // Hack to be able to convert ScrollTimeline back into scroll position.
-  var scrollRange = (scroller.scrollHeight - scroller.clientHeight);
-  var effects = [];
-  var boxes = document.querySelectorAll('.sticky');
-  for (var i = 0; i < boxes.length; i++) {
-    effects.push(new KeyframeEffect(boxes[i], [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange));
-  }
-  window.stickyAnimation = new WorkletAnimation('spring-sticky', effects,
-    new ScrollTimeline({scrollSource: scroller, timeRange: scrollRange}),
-    {'documentTimeline': new DocumentTimeline()});
-  window.stickyAnimation.play();
+// This demo uses multiple effects so we need to depend on polyfill. Force
+// polyfill to export its symbols.
+window.animationWorkletPolyfill.load(true /* forced */).then(_=> {
+  CSS.animationWorklet.addModule('spring-sticky-animator.js').then(_=> {
+    var scroller = document.getElementById('scroller');
+    // Hack to be able to convert ScrollTimeline back into scroll position.
+    var scrollRange = (scroller.scrollHeight - scroller.clientHeight);
+    var effects = [];
+    var boxes = document.querySelectorAll('.sticky');
+    for (var i = 0; i < boxes.length; i++) {
+      effects.push(new KeyframeEffect(boxes[i], [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + scrollRange + 'px)'}], scrollRange));
+    }
+    window.stickyAnimation = new WorkletAnimation('spring-sticky', effects,
+      new ScrollTimeline({scrollSource: scroller, timeRange: scrollRange}),
+      {'documentTimeline': new DocumentTimeline()});
+    window.stickyAnimation.play();
+  });
 });
 </script>
+</html>

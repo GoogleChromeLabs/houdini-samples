@@ -14,6 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+<html land="en">
+
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
@@ -36,9 +38,8 @@ limitations under the License.
       height: 100vh;
       overflow: scroll;
       color: white;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.3);
       scroll-behavior: smooth;
-      --animator-root: parallax scroller;
     }
     .parallax {
       background-image: url('pic.jpg');
@@ -51,7 +52,6 @@ limitations under the License.
       top: 0;
       left: 0;
       z-index: -1;
-      --animator: parallax background;
     }
     #options {
       position: fixed;
@@ -121,3 +121,4 @@ limitations under the License.
 <script src="../anim-worklet.js"></script>
 <script src="parallax.js"></script>
 <script src="options.js"></script>
+</html>

@@ -23,8 +23,6 @@ limitations under the License.
   .expando {
     overflow: hidden;
     position: relative;
-    --animator-root: expand clip;
-    --expand-scale: 13;
   }
 
   .expando {
@@ -33,12 +31,7 @@ limitations under the License.
     width: 100px;
   }
 
-  .expando .content {
-    --animator: expand content;
-  }
-
   .expando .small {
-    --animator: expand small;
     border-radius: 5px;
     width: 360px;
     height: 500px;
@@ -47,7 +40,6 @@ limitations under the License.
   }
 
   .expando .large {
-    --animator: expand large;
     background: yellow;
     border-radius: 5px;
     width: 360px;
@@ -72,9 +64,11 @@ limitations under the License.
     </div>
   </div>
 </body>
+
+<script src="../anim-worklet.js"></script>
 <script>
-  window.addEventListener('load', function() {
-    window.animationWorklet.addModule('expando-animator.js').then(function(){
+  window.animationWorkletPolyfill.load().then(_=> {
+    CSS.animationWorklet.addModule('expando-animator.js').then(function(){
       var expando = document.querySelector('.expando');
       var offset = document.querySelector('.expando .offset');
       var content = document.querySelector('.expando .content');

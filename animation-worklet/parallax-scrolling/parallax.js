@@ -55,14 +55,15 @@ document.addEventListener('DOMContentLoaded', function() {
       rafScheduled = true;
     };
   } else {
-    console.log('Using animation worklet rAF');
-
-    window.animationWorklet.addModule('parallax-animator.js').then(function(){
-      var scrollRange = scroller.scrollHeight - scroller.clientHeight;
-      window.parallaxAnimator = new WorkletAnimation('parallax',
-          new KeyframeEffect(parallax, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + -scrollRange + 'px)'}], scrollRange),
-          new ScrollTimeline({scrollSource: scroller, orientation: 'vertical'}));
-      window.parallaxAnimator.play();
+    console.log('Using animation worklet');
+    window.animationWorkletPolyfill.load().then(_=> {
+      CSS.animationWorklet.addModule('parallax-animator.js').then(function(){
+        var scrollRange = scroller.scrollHeight - scroller.clientHeight;
+        window.parallaxAnimator = new WorkletAnimation('parallax',
+            new KeyframeEffect(parallax, [{'transform': 'translateY(0)'}, {'transform': 'translateY(' + -scrollRange + 'px)'}], scrollRange),
+            new ScrollTimeline({scrollSource: scroller, orientation: 'block', timeRange: scrollRange}));
+        window.parallaxAnimator.play();
+      });
     });
   }
 });
