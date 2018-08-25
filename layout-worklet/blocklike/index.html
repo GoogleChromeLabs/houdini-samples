@@ -1,0 +1,127 @@
+<!doctype html>
+<!--
+Copyright 2018 Google, Inc. All Rights Reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<style>
+main {
+  width: 500px;
+  outline: 1px solid black;
+
+  display: layout(blocklike);
+}
+
+div {
+  background-color: hotpink;
+  border: 3px solid rebeccapurple;
+}
+div:nth-of-type(1) {
+  margin: 10px;
+}
+div:nth-of-type(2) {
+  margin: 20px;
+}
+div:nth-of-type(3) {
+  margin: 30px;
+}
+div:nth-of-type(4) {
+  margin: 40px;
+  transition: margin 1s;
+}
+div:nth-of-type(4):hover {
+  margin: 0;
+}
+
+</style>
+
+<main>
+  <div>A</div>
+  <div>Retro kitsch snackwave aesthetic post-ironic woke swag freegan. Ramps semiotics vinyl four dollar toast, pok pok craft beer fanny pack forage health goth. Semiotics normcore offal williamsburg food truck mixtape skateboard glossier artisan +1 snackwave fingerstache dreamcatcher. Cliche VHS fanny pack affogato. Vinyl biodiesel fashion axe craft beer actually occupy flexitarian. Flannel affogato echo park banh mi, tattooed edison bulb organic wayfarers ethical four loko hammock listicle prism.</div>
+  <div>Pabst irony raclette.</div>
+  <div>Retro kitsch snackwave aesthetic post-ironic woke swag freegan. Ramps semiotics vinyl four dollar toast, pok pok craft beer fanny pack forage health goth. Semiotics normcore offal williamsburg food truck mixtape skateboard glossier artisan +1 snackwave fingerstache dreamcatcher. Cliche VHS fanny pack affogato. Vinyl biodiesel fashion axe craft beer actually occupy flexitarian. Flannel affogato echo park banh mi, tattooed edison bulb organic wayfarers ethical four loko hammock listicle prism.s</div>
+</main>
+
+<script language="javascript+layout">
+  registerLayout("blocklike", class {
+    static get childInputProperties() { return ['margin-left', 'margin-right', 'margin-top', 'margin-bottom'];}
+    // currently: all children are blockified
+    *intrinsicSizes() {}
+    *layout(children, edges, constraintSpace, styles) {
+      const childFragments = [];
+      let inlineOffset = 0;
+      let blockOffset = 0;
+      let maxBlockSizeInRow = 0;
+      let availableInlineSize = constraintSpace.fixedInlineSize;
+      let isRepeatAttempt = false;
+
+      for(let i = 0; i < children.length; i++) {
+        let child = children[i];
+        let childFragment = yield child.layoutNextFragment({
+          availableInlineSize
+        });
+        const leftMargin = child.styleMap.get('margin-left').value;
+        const rightMargin = child.styleMap.get('margin-right').value;
+        const topMargin = child.styleMap.get('margin-top').value;
+        const bottomMargin = child.styleMap.get('margin-bottom').value;
+        let childInlineSize = childFragment.inlineSize + leftMargin + rightMargin;
+        // If there’s not enough room left on this row, start a new row and
+        // layout the current child again.
+        if(childInlineSize > availableInlineSize && !isRepeatAttempt) {
+          availableInlineSize = constraintSpace.fixedInlineSize;
+          blockOffset += maxBlockSizeInRow;
+          maxBlockSizeInRow = 0;
+          inlineOffset = 0;
+          isRepeatAttempt = true;
+          // Restart loop
+          i--;
+          continue;
+        } else if(childInlineSize > availableInlineSize && isRepeatAttempt) {
+          // If the second attempt failed as well, the child is wider than the
+          // there’s room. In that case, force it to be laid out at max width.
+          childFragment = yield child.layoutNextFragment({
+            fixedInlineSize: availableInlineSize - leftMargin - rightMargin
+          });
+        }
+        isRepeatAttempt = false;
+        childFragment.inlineOffset = inlineOffset + leftMargin;
+        childFragment.blockOffset = blockOffset + topMargin;
+        childFragments.push(childFragment);
+
+        inlineOffset += childInlineSize;
+        maxBlockSizeInRow = Math.max(maxBlockSizeInRow, childFragment.blockSize + topMargin + bottomMargin);
+        availableInlineSize -= childInlineSize;
+      }
+
+      return {
+        childFragments,
+        autoBlockSize: blockOffset + maxBlockSizeInRow
+      };
+    }
+  });
+</script>
+<script>
+  if(!('layoutWorklet') in CSS) {
+    document.write('You need Custom Layout for this demo :(');
+  }
+  function urlFromTag(sel) {
+    const el = document.querySelector(sel);
+    if(!el) {
+      throw new Error("Couldn’t find element");
+    }
+    const blob = new Blob([el.textContent], {type: "text/javascript"});
+    return URL.createObjectURL(blob);
+  }
+  async function init() {
+    await CSS.layoutWorklet.addModule(urlFromTag("script[language='javascript+layout']"));
+  }
+  init();
+</script>
