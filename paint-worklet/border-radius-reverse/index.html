@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Border Radius Reverse</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script> 
+        CSS.paintWorklet.addModule('border-radius-reverse.js');
+    </script>  
+</head>
+<body>
+    <main>
+        <div class="square radius-normal"></div>  
+        <div class="square radius-reverse"></div>
+    
+        <h2>Change values below :)</h2>
+    
+        <style style="display: block; white-space: pre;" contenteditable="true">
+            .radius-normal {
+                border-radius: 10px;
+            }
+            .radius-reverse {
+            background-clip: content-box;
+            border: solid 0;
+            border-image: paint(border-radius-reverse);
+            --border-radius-reverse: 10;
+            --border-radius-reverse-color: red;
+            border-image-slice: 10;
+            border-width: 10px;
+            }
+        </style>
+      
+    </main>
+    
+</body>
+</html>
