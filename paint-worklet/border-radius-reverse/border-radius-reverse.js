@@ -7,7 +7,6 @@ class BorderRadiusReversePainter {
         context.save();
         context.beginPath();
         context.arc(x, y, radius, 0, 2*Math.PI, true);
-        console.log(x , radius)
         context.clip();
         context.clearRect(x - radius,y - radius,radius*2,radius*2);
         context.restore();
