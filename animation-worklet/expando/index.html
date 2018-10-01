@@ -75,7 +75,7 @@ limitations under the License.
       var smallContent = document.querySelector('.expando .small');
       var largeContent = document.querySelector('.expando .large');
       var expandScale = 13;
-      var effectOptions = {duration: 1, fill: 'both'};
+      var effectOptions = {duration: 1000, fill: 'both'};
 
       const expando_effect = new KeyframeEffect(expando, [{'transform': 'scale(1)'}, {'transform': 'scale(' + expandScale + ')'}], effectOptions);
       const content_effect = new KeyframeEffect(content, [{'transform': 'scale(1)'}, {'transform': 'scale(' + (1 / expandScale) + ')'}], effectOptions);

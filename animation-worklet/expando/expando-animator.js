@@ -10,8 +10,7 @@ registerAnimator('expando', class ExpandAnimator {
       t = Math.max(0, 4 - repeatTime);
     else
       t = 1;
-
-    effect.localTime = t;
+    effect.localTime = t * 1000;
   }
 });
 
@@ -36,6 +35,6 @@ registerAnimator('reverseExpando', class ReverseExpandAnimator {
     // Counter-scale the content elements.
     var counterScale = 1 / scale;
     var maxCounterScale = 1 / expandScale;
-    effect.localTime = (counterScale - 1) / (maxCounterScale - 1);
+    effect.localTime = (counterScale - 1) / (maxCounterScale - 1) * 1000;
   }
 });
