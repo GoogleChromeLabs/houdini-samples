@@ -1,3 +1,19 @@
+/*
+Copyright 2018 Google, Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 class ClockPainter {
   static get inputProperties() {
     return ['--clock-time', '--clock-from-time'];
@@ -23,9 +39,6 @@ class ClockPainter {
       ctx.fill();
     };
 
-    ctx.strokeStyle = 'blue';
-    ctx.lineWidth = 2 * dotRadius;
-    ctx.lineCap = 'round';
     const drawArc = function(fromTime, toTime) {
       const fromAngle = 2 * Math.PI * fromTime / clockHours - Math.PI / 2;
       const toAngle = 2 * Math.PI * toTime / clockHours - Math.PI / 2;
@@ -37,6 +50,8 @@ class ClockPainter {
       gradient.addColorStop('0', 'rgba(0, 0, 255, 0)');
       gradient.addColorStop('1', 'rgba(0, 0, 255, 1)');
       ctx.strokeStyle = gradient;
+      ctx.lineWidth = 2 * dotRadius;
+      ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.arc(0, 0, numbersRadius, fromAngle, toAngle);
       ctx.stroke();
@@ -69,5 +84,4 @@ class ClockPainter {
   }
 }
 
-// Register our class under a specific name
 registerPaint('clock-painter', ClockPainter);
