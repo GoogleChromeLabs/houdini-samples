@@ -1,0 +1,140 @@
+:root {
+
+/* backgrounds */
+
+--default-primary-color: #03A9F4;
+--light-primary-color  : #B3E5FC;
+--dark-primary-color   : #0288D1;
+
+--accent-color         : #CDDC39;
+
+/* text */
+--text-primary-color   : #FFFFFF;
+
+--primary-text-color   : #212121;
+--secondary-text-color : #757575;
+
+/* border */
+--divider-color        : #BDBDBD;
+
+
+--nav-height: 40px
+}
+
+body, html {
+  padding: 0;
+  margin: 0;
+  font-family:  Sans-Serif;
+}
+
+
+/* Navigation */
+nav {
+  padding: 0;
+}
+nav ul {
+  list-style: none;
+  background-color: var(--dark-primary-color);
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+nav li {
+  font-size: 1.2em;
+  line-height: 40px;
+  height: var(--nav-height);
+  border-bottom: 1px solid var(--divider-color);
+}
+nav li a {
+  text-decoration: none;
+  color:var(--text-primary-color);
+}
+
+
+/* Info Page */
+
+#info {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 1px - var(--nav-height));
+
+}
+
+#info #contents {
+  overflow: hidden;
+  width: 100vw;
+  height: calc((100vh - 1px - var(--nav-height))/2);
+}
+
+#info ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.horizontal_scroller {
+  white-space: nowrap;
+}
+ul.horizontal_scroller li {
+  display: inline-block;
+}
+
+
+#info #contents > ul {
+  position: relative;
+}
+
+
+#info #contents > ul > li {
+  box-sizing: border-box;
+  font-size: 10em;
+  background: var(--light-primary-color);
+  border: 1px solid var(--divider-color);
+
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+
+  opacity: 0;
+  will-change: opacity;
+}
+
+#info #tabs {
+  box-sizing: border-box;
+
+  width: 100%;
+  height: 50%;
+
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+}
+
+
+#info #tabs > ul {
+  position: relative;
+  height: 100%;
+}
+
+#info #tabs > ul > li {
+  font-size: 3em;
+  box-sizing: border-box;
+  background: var(--default-primary-color);
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
+  margin: 0 10px;
+  border: 1px solid var(--divider-color);
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  scroll-snap-align: start;
+
+  will-change: transform, opacity;
+
+}

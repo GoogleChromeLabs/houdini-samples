@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Trip app</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="#list">List Page</a></li>
+      <li><a href="#info">Info Page</a></li>
+    </ul>
+  </nav>
+  <section id="list">
+    List Page
+  </section>
+
+  <section id="info">
+      <div id="contents">
+          <ul>
+              <li> 1
+              <li> 2
+              <li> 3
+              <li> 4
+              <li> 5
+              <li> 6
+          </ul>
+      </div>
+      <div id="tabs">
+        <ul class="horizontal_scroller">
+          <li> Swipe me!
+          <li> Swipe me!
+          <li> Swipe me!
+          <li> Swipe me!
+          <li> Swipe me!
+          <li> Swipe me!
+        </ul>
+      </div>
+
+  </section>
+
+</body>
+
+<script>
+  // redirect to https since AnimationWorklet is only availably in secure contexts.
+  if (location.hostname != 'localhost' &&  location.protocol != 'https:') {
+    location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+  }
+
+  // A simple router.
+  function gotoPage() {
+    var pageName = '#list';
+    if (location.hash.trim().length != 0)
+    pageName = location.hash.trim();
+
+    const page = document.body.querySelector(`section${pageName}`);
+    if (!page)
+      return;
+    // hide all except the page of interest
+    document.body.querySelectorAll('section').forEach(s => {s.style.display = 'none';});
+    page.style.display = 'block';
+  }
+  gotoPage();
+  window.addEventListener('hashchange', gotoPage);
+</script>
+
+<script>
+(async function() {
+  if (!CSS.animationWorklet) {
+      console.warn('Missing CSS.animationWorklet. To enable scroll effect please load in HTTPS and enable flag chrome://flags/#enable-experimental-web-platform-features');
+      document.body.innerHTML='Missing <tt>CSS.animationWorklet</tt>. <br/> To enable demo please enable Chrome flag chrome://flags/#enable-experimental-web-platform-features and load on HTTPS'
+      return;
+  }
+  console.log('Loading animation worklet');
+  await CSS.animationWorklet.addModule('swipe-animator.js');
+
+  const tabs = document.getElementById('tabs');
+  const contents = document.getElementById('contents');
+
+  tabs.scrollTo(0,0); // force snap on load
+
+  const scrollRange = tabs.scrollWidth - tabs.clientWidth;
+  const scrollTimeline = new ScrollTimeline({ scrollSource: tabs, orientation: 'inline', timeRange: scrollRange});
+
+  const tabItems= tabs.querySelectorAll('ul > li');
+  const contentItems= contents.querySelectorAll('ul > li');
+
+
+  for (let i = 0; i < tabItems.length; i++) {
+    const tab = tabItems[i];
+    const content = contentItems[i]
+    // Create one animation per tab. Once we have group effect supporte
+    // we can have a single animation with a group effect for all tabs.
+    const effect = new KeyframeEffect(
+        content,
+        [{opacity: 1, transform: 'scale3d(1, 1, 1)'}, {opacity: 0, transform: 'scale3d(0.9, 0.9, 1)'}],
+        { duration: 100, iterations: Infinity , fill: "both"});
+    // Pass offset left as an option but once we support start and end
+    // scroll offset in ScrollTimeline we can get rid of this.
+    const animation = new WorkletAnimation(
+        'material_tab_swipe',
+        effect,
+        scrollTimeline,
+        {offset: tab.offsetLeft, width: tab.clientWidth});
+    animation.play();
+  }
+})();
+</script>
+</html>
+
