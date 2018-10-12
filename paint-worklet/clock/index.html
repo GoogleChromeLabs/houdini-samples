@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<style type="text/css">
+.clock {
+  background: paint(clock-painter);
+  display: inline-block;
+  height: 256px;
+  width: 256px;
+  --clock-time: 0;
+  --clock-from-time: 0;
+  transition:
+    --clock-time 0.2s cubic-bezier(0.5, 0, 0.5, 1),
+    --clock-from-time 0.4s cubic-bezier(0.5, 0, 0.5, 1);
+}
+</style>
+<head>
+  <title>Time for paint worklets</title>
+</head>
+<body>
+<h1>Time for paint worklets</h1>
+
+<div>
+  <div class="clock"></div>
+</div>
+<script type="text/javascript">
+  CSS.registerProperty({
+    name: '--clock-time',
+    syntax: '<number>',
+    inherits: false,
+    initialValue: '0'
+  });
+  CSS.registerProperty({
+    name: '--clock-from-time',
+    syntax: '<number>',
+    inherits: false,
+    initialValue: '0'
+  });
+
+  CSS.paintWorklet.addModule('clock-painter.js');
+
+  function setTime(newTime) {
+    const elem = document.querySelector('.clock');
+    elem.style.setProperty('--clock-from-time', newTime);
+    elem.style.setProperty('--clock-time', newTime);
+  }
+
+  (function() {
+    let hour = 0;
+    const elem = document.querySelector('.clock');
+    elem.addEventListener('click', function(event) {
+      const rect = event.target.getBoundingClientRect();
+      const xClick = event.clientX - rect.left;
+      const yClick = event.clientY - rect.top;
+      const xMid = elem.clientWidth / 2;
+      const yMid = elem.clientHeight / 2;
+      const x = xClick - xMid;
+      const y = yClick - yMid;
+      let angle = Math.atan2(x, -y);
+      if (angle < 0) {
+        angle += 2 * Math.PI;
+      }
+      let nextTime = Math.round(angle * 6 / Math.PI);
+      while (nextTime < hour) {
+        nextTime += 12;
+      }
+      hour = nextTime;
+      setTime(hour);
+    });
+  })();
+
+</script>
+</body>
+</html>
