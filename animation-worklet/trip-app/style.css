@@ -160,3 +160,56 @@ ul.horizontal li {
 #info #tabs p {
   padding: 10px;
 }
+
+/* List Page*/
+#list .row_container {
+  width: 100vw;
+  height: 20vh;
+  position: relative;
+
+}
+#list .row_container  .icon {
+  position: absolute;
+  left: 20%;
+  top: 10%;
+}
+
+.icon svg {
+  transform: scale(0.5);
+}
+
+
+.icon .icon_bg {
+  transform: scale(0.5);
+  background-color: var(--accent-color);
+  width: 24px;
+  height: 24px;
+}
+
+
+#list .row_container .row {
+   overflow-x: scroll;
+   overflow-y: hidden;
+   scroll-snap-type: x mandatory;
+   white-space: nowrap;
+}
+
+.row  .entry_container {
+  width: 300vw;
+}
+
+
+.entry_container .entry{
+  width: 100vw;
+  height: 20vh;
+  margin-left: 100vw;
+  border: solid 1px black;
+  background-color: var(--light-primary-color);
+  scroll-snap-align: start;
+}
+
+
+
+* {
+  /* border: solid 1px red; */
+}
