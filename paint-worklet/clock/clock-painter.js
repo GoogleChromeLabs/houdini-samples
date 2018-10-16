@@ -29,7 +29,9 @@ class ClockPainter {
       "--clock-background-color",
       "--clock-num-hours",
       "--clock-hand-color",
-      "--clock-hour-color"
+      "--clock-hand-size",
+      "--clock-hour-color",
+      "--clock-hour-size"
     ];
   }
 
@@ -60,10 +62,11 @@ class ClockPainter {
     const backgroundColor = properties
       .get("--clock-background-color")
       .toString();
-    const handColor = properties.get("--clock-hand-color").toString();
+    this.handColor = properties.get("--clock-hand-color").toString();
     const hourColor = properties.get("--clock-hour-color").toString();
+    const handSize = properties.get("--clock-hand-size").value;
     this.maxRadius = Math.min(xMid, yMid);
-    this.dotRadius = 8;
+    this.dotRadius = properties.get("--clock-hour-size").value;
     this.padding = 6;
     this.numbersRadius = this.maxRadius - this.dotRadius - this.padding;
 
@@ -87,15 +90,14 @@ class ClockPainter {
     // Draw the hour hand.
     ctx.save();
     ctx.rotate((2 * Math.PI * clockTime) / this.numHours);
-    ctx.fillStyle = handColor;
+    ctx.lineWidth = handSize;
+    ctx.strokeStyle = this.handColor;
     ctx.beginPath();
-    ctx.moveTo(-3, 0);
+    ctx.moveTo(0, 0);
     ctx.lineTo(0, -this.numbersRadius);
-    ctx.lineTo(3, 0);
-    ctx.lineTo(-3, 0);
-    ctx.fill();
+    ctx.stroke();
+    drawCircle(ctx, 0, -this.numbersRadius, this.dotRadius, this.handColor);
     ctx.restore();
-    drawCircle(ctx, 0, 0, this.dotRadius, handColor);
   }
 }
 

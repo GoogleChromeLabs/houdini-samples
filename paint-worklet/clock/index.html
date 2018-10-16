@@ -2,10 +2,11 @@
 <html>
 <style type="text/css">
 .clock {
+  --size: 256px;
   background: paint(clock-painter);
   display: inline-block;
-  height: 256px;
-  width: 256px;
+  height: var(--size);
+  width: var(--size);
   --clock-time: 0;
   --clock-from-time: 0;
   transition:
@@ -40,6 +41,13 @@
     initialValue: '#f00'
   });
   CSS.registerProperty({
+    name: '--clock-hand-size',
+    syntax: '<number>',
+    inherits: false,
+    initialValue: '3'
+  });
+
+  CSS.registerProperty({
     name: '--clock-num-hours',
     syntax: '<number>',
     inherits: false,
@@ -58,6 +66,13 @@
     syntax: '<color>',
     inherits: false,
     initialValue: '#fff'
+  });
+
+  CSS.registerProperty({
+    name: '--clock-hour-size',
+    syntax: '<number>',
+    inherits: false,
+    initialValue: '8'
   });
 
   CSS.paintWorklet.addModule('clock-painter.js');
