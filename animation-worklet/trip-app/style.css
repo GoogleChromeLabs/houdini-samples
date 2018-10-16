@@ -168,6 +168,8 @@ ul.horizontal li {
 #list .row_container {
   width: 100vw;
   position: relative;
+  /* prevent background to escape */
+  overflow: hidden;
 
 }
 #list .row_container  .icon {
@@ -182,13 +184,17 @@ ul.horizontal li {
   fill: red;
 }
 
-.icon .icon_bg {
+.row_container .bg {
   transform: scale(0.5);
-  background-color: var(--accent-color);
+  background-color: yellow;
   width: 24px;
   height: 24px;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
-
 
 #list .row_container .row {
    overflow-x: scroll;
@@ -200,7 +206,6 @@ ul.horizontal li {
 .row  .entry_container {
   width: 300vw;
 }
-
 
 .entry_container .entry {
   padding: 30px;

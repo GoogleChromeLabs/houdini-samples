@@ -34,29 +34,37 @@ registerAnimator('icon_effect', class {
       this.commitedFavoriteState_ = false;
   }
 
+
   animate(currentTime, effect) {
+      if (isNaN(currentTime))
+        return;
       const scrollOffset = Math.round(currentTime);
       var delta = this.start_ - scrollOffset;
       const progress = delta / this.width_;
 
-      if (progress < 0)
-        return;
-
       if (!this.favorited_ && !this.play_when_favorited_) {
-        // bug, at 1 we disable the animation!
-        effect.localTime = Math.min(progress, 1) * 100;
+        // play the scale animation
+        effect.localTime = clamp(progress, 0,  1) * 100;
       } else if (this.favorited_ && this.play_when_favorited_) {
         // play the transform animation
-        effect.localTime = Math.min(progress, 1) * 100;
+        effect.localTime = clamp(progress, 0,  1) * 100;
       }
 
-      if (progress <= 0) {
+      if (isNear(progress, 0) || progress < 0) {
+        // Back to 0, commit the new state
         this.commitedFavoriteState_ = this.favorited_;
-      } else if (progress > 0 && progress < 1) {
-        //console.log(`${progress}`);
-      } else if (progress > 1) {
-        // We are passed threshold, toggle the state
+      } else if (isNear(progress, 1) || progress > 1 ) {
+        // Passed threshold, toggle the state
         this.favorited_ = !this.commitedFavoriteState_;
       }
   }
 });
+
+
+function clamp(value, min, max) {
+  return Math.max(Math.min(value, max), min);
+}
+
+function isNear(a, b) {
+  return Math.abs(a - b) < 1e-4;
+}
