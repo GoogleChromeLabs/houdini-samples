@@ -38,7 +38,7 @@
     name: '--clock-hand-color',
     syntax: '<color>',
     inherits: false,
-    initialValue: '#f00'
+    initialValue: '#dfdbff'
   });
   CSS.registerProperty({
     name: '--clock-hand-size',
@@ -58,14 +58,14 @@
     name: '--clock-background-color',
     syntax: '<color>',
     inherits: false,
-    initialValue: '#f0f'
+    initialValue: '#080042'
   });
 
   CSS.registerProperty({
     name: '--clock-hour-color',
     syntax: '<color>',
     inherits: false,
-    initialValue: '#fff'
+    initialValue: '#4b3acf'
   });
 
   CSS.registerProperty({
@@ -73,6 +73,13 @@
     syntax: '<number>',
     inherits: false,
     initialValue: '8'
+  });
+
+  CSS.registerProperty({
+    name: '--clock-hour-padding',
+    syntax: '<number>',
+    inherits: false,
+    initialValue: '6'
   });
 
   CSS.paintWorklet.addModule('clock-painter.js');

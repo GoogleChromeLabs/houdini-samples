@@ -31,7 +31,8 @@ class ClockPainter {
       "--clock-hand-color",
       "--clock-hand-size",
       "--clock-hour-color",
-      "--clock-hour-size"
+      "--clock-hour-size",
+      "--clock-hour-padding"
     ];
   }
 
@@ -39,14 +40,7 @@ class ClockPainter {
     const ctx = this.ctx;
     const fromAngle = (2 * Math.PI * fromTime) / this.numHours - Math.PI / 2;
     const toAngle = (2 * Math.PI * toTime) / this.numHours - Math.PI / 2;
-    const x1 = this.numbersRadius * Math.cos(fromAngle);
-    const y1 = this.numbersRadius * Math.sin(fromAngle);
-    const x2 = this.numbersRadius * Math.cos(toAngle);
-    const y2 = this.numbersRadius * Math.sin(toAngle);
-    const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    gradient.addColorStop("0", "rgba(0, 0, 255, 0)");
-    gradient.addColorStop("1", "rgba(0, 0, 255, 1)");
-    ctx.strokeStyle = gradient;
+    ctx.strokeStyle = this.handColor;
     ctx.lineWidth = 2 * this.dotRadius;
     ctx.lineCap = "round";
     ctx.beginPath();
@@ -67,7 +61,7 @@ class ClockPainter {
     const handSize = properties.get("--clock-hand-size").value;
     this.maxRadius = Math.min(xMid, yMid);
     this.dotRadius = properties.get("--clock-hour-size").value;
-    this.padding = 6;
+    this.padding = properties.get("--clock-hour-padding").value;;
     this.numbersRadius = this.maxRadius - this.dotRadius - this.padding;
 
     const clockTime = parseFloat(properties.get("--clock-time").toString());
