@@ -23,17 +23,20 @@ function drawCircle(ctx, x, y, r, fill) {
 
 class ClockPainter {
   static get inputProperties() {
-    return ["--clock-time", "--clock-from-time"];
-  }
-
-  constructor() {
-    this.clockHours = 12;
+    return [
+      "--clock-time",
+      "--clock-from-time",
+      "--clock-background-color",
+      "--clock-num-hours",
+      "--clock-hand-color",
+      "--clock-hour-color"
+    ];
   }
 
   drawSwoosh(fromTime, toTime) {
     const ctx = this.ctx;
-    const fromAngle = (2 * Math.PI * fromTime) / this.clockHours - Math.PI / 2;
-    const toAngle = (2 * Math.PI * toTime) / this.clockHours - Math.PI / 2;
+    const fromAngle = (2 * Math.PI * fromTime) / this.numHours - Math.PI / 2;
+    const toAngle = (2 * Math.PI * toTime) / this.numHours - Math.PI / 2;
     const x1 = this.numbersRadius * Math.cos(fromAngle);
     const y1 = this.numbersRadius * Math.sin(fromAngle);
     const x2 = this.numbersRadius * Math.cos(toAngle);
@@ -53,6 +56,12 @@ class ClockPainter {
     this.ctx = ctx;
     const xMid = geom.width / 2;
     const yMid = geom.height / 2;
+    this.numHours = properties.get("--clock-num-hours").value;
+    const backgroundColor = properties
+      .get("--clock-background-color")
+      .toString();
+    const handColor = properties.get("--clock-hand-color").toString();
+    const hourColor = properties.get("--clock-hour-color").toString();
     this.maxRadius = Math.min(xMid, yMid);
     this.dotRadius = 8;
     this.padding = 6;
@@ -64,21 +73,21 @@ class ClockPainter {
     );
 
     ctx.translate(xMid, yMid);
-    drawCircle(ctx, 0, 0, this.maxRadius, "#eee");
+    drawCircle(ctx, 0, 0, this.maxRadius, backgroundColor);
     // Draw the hour markers.
-    for (let hour = 1; hour <= this.clockHours; hour++) {
-      const angle = (2 * Math.PI * hour) / this.clockHours - Math.PI / 2;
+    for (let hour = 1; hour <= this.numHours; hour++) {
+      const angle = (2 * Math.PI * hour) / this.numHours - Math.PI / 2;
       const x = this.numbersRadius * Math.cos(angle);
       const y = this.numbersRadius * Math.sin(angle);
-      drawCircle(ctx, x, y, this.dotRadius, "#ccc");
+      drawCircle(ctx, x, y, this.dotRadius, hourColor);
     }
     // Draw path trail.
     this.drawSwoosh(clockFromTime, clockTime);
 
     // Draw the hour hand.
     ctx.save();
-    ctx.rotate((2 * Math.PI * clockTime) / this.clockHours);
-    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.rotate((2 * Math.PI * clockTime) / this.numHours);
+    ctx.fillStyle = handColor;
     ctx.beginPath();
     ctx.moveTo(-3, 0);
     ctx.lineTo(0, -this.numbersRadius);
@@ -86,7 +95,7 @@ class ClockPainter {
     ctx.lineTo(-3, 0);
     ctx.fill();
     ctx.restore();
-    drawCircle(ctx, 0, 0, this.dotRadius, "blue");
+    drawCircle(ctx, 0, 0, this.dotRadius, handColor);
   }
 }
 

@@ -33,6 +33,32 @@
     inherits: false,
     initialValue: '0'
   });
+  CSS.registerProperty({
+    name: '--clock-hand-color',
+    syntax: '<color>',
+    inherits: false,
+    initialValue: '#f00'
+  });
+  CSS.registerProperty({
+    name: '--clock-num-hours',
+    syntax: '<number>',
+    inherits: false,
+    initialValue: '12'
+  });
+
+  CSS.registerProperty({
+    name: '--clock-background-color',
+    syntax: '<color>',
+    inherits: false,
+    initialValue: '#f0f'
+  });
+
+  CSS.registerProperty({
+    name: '--clock-hour-color',
+    syntax: '<color>',
+    inherits: false,
+    initialValue: '#fff'
+  });
 
   CSS.paintWorklet.addModule('clock-painter.js');
 
