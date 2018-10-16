@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <title>Trip app</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <nav>
     <ul>
@@ -19,71 +21,61 @@
   </section>
 
   <section id="info">
-      <div id="chips">
-        <div id="indicator"></div>
+    <div id="chips">
+      <div id="indicator"></div>
+      <ul class="">
+        <li> 1
+        <li> 2
+        <li> 3
+        <li> 4
+        <li> 5
+        <li> 6
+      </ul>
+    </div>
 
-        <ul class="">
-          <li> 1
-          <li> 2
-          <li> 3
-          <li> 4
-          <li> 5
-          <li> 6
-        </ul>
+    <div id="images">
+      <div id="images_container">
+        <figure class="figure">
+          <img src="http://source.unsplash.com/JMYBetGDIKY">
+        </figure>
+        <figure class="figure">
+          <img src="http://source.unsplash.com/AJgFLjnmSs4">
+        </figure>
+        <figure class="figure">
+          <img src="http://source.unsplash.com/JMYBetGDIKY">
+        </figure>
+        <figure class="figure">
+          <img src="http://source.unsplash.com/JMYBetGDIKY">
+        </figure>
+        <figure class="figure">
+          <img src="http://source.unsplash.com/AJgFLjnmSs4">
+        </figure>
+        <figure class="figure">
+          <img src="http://source.unsplash.com/JMYBetGDIKY">
+        </figure>
+        <figure class="figure">
+          <img src="http://source.unsplash.com/AJgFLjnmSs4">
+        </figure>
       </div>
-      <div id="images">
-        <div id="images_container">
-          <figure class="figure">
-            <img src="http://source.unsplash.com/JMYBetGDIKY">
-          </figure> 
-          <figure class="figure">
-            <img src="http://source.unsplash.com/AJgFLjnmSs4">
-          </figure>
-          <figure class="figure">
-            <img src="http://source.unsplash.com/JMYBetGDIKY">
-          </figure>
-          <figure class="figure">
-            <img src="http://source.unsplash.com/JMYBetGDIKY">
-          </figure>
-          <figure class="figure">
-            <img src="http://source.unsplash.com/AJgFLjnmSs4">
-          </figure>
-          <figure class="figure">
-            <img src="http://source.unsplash.com/JMYBetGDIKY">
-          </figure>
-          <figure class="figure">
-            <img src="http://source.unsplash.com/AJgFLjnmSs4">
-          </figure>
+    </div>
 
-        </div>
-      </div>
-      <div id="contents" style="display:none;">
-        <ul>
-            <li> 1
-            <li> 2
-            <li> 3
-            <li> 4
-            <li> 5
-            <li> 6
-        </ul>
-      </div>
-      <div id="tabs">
-        <ul class="horizontal">
-          <li> Brazil
-          <li> Mexico
-          <li> Canada
-          <li> United States
-          <li> Costa Rica
-          <li> Argentina
-        </ul>
-      </div>
+    <div id="tabs">
+      <ul class="horizontal">
+        <li> <p>Brazil</p>
+        <li> <p>Mexico</p>
+        <li> <p>Canada</p>
+        <li> <p>United States</p>
+        <li> <p>Costa Rica</p>
+        <li style="margin-right: 0;"> <p>Argentina</p>
+      </ul>
+    </div>
   </section>
 
 </body>
 
 <script>
   // redirect to https since AnimationWorklet is only availably in secure contexts.
-  if (location.hostname != 'localhost' &&  location.protocol != 'https:') {
+  if (location.hostname != 'localhost' && location.protocol != 'https:') {
     location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
   }
 
@@ -91,96 +83,87 @@
   function gotoPage() {
     var pageName = '#list';
     if (location.hash.trim().length != 0)
-    pageName = location.hash.trim();
+      pageName = location.hash.trim();
 
     const page = document.body.querySelector(`section${pageName}`);
     if (!page)
       return;
     // hide all except the page of interest
-    document.body.querySelectorAll('section').forEach(s => {s.style.display = 'none';});
+    document.body.querySelectorAll('section').forEach(s => { s.style.display = 'none'; });
     page.style.display = '';
+    if (pageName == '#info')
+      loadInfoPageAnimations();
+  
   }
   gotoPage();
   window.addEventListener('hashchange', gotoPage);
-</script>
 
-<script>
-(async function() {
-  if (!CSS.animationWorklet) {
+  (async function () {
+    if (!CSS.animationWorklet) {
       console.warn('Missing CSS.animationWorklet. To enable scroll effect please load in HTTPS and enable flag chrome://flags/#enable-experimental-web-platform-features');
-      document.body.innerHTML='Missing <tt>CSS.animationWorklet</tt>. <br/> To enable demo please enable Chrome flag chrome://flags/#enable-experimental-web-platform-features and load on HTTPS'
+      document.body.innerHTML = 'Missing <tt>CSS.animationWorklet</tt>. <br/> To enable demo please enable Chrome flag chrome://flags/#enable-experimental-web-platform-features and load on HTTPS'
       return;
+    }
+    console.log('Loading animation worklet');
+    await CSS.animationWorklet.addModule('swipe-animator.js');
+
+  })();
+
+  function loadInfoPageAnimations() {
+
+    const tabs = document.getElementById('tabs');
+    const scrollRange = tabs.scrollWidth - tabs.clientWidth;
+    const scrollTimeline = new ScrollTimeline({ scrollSource: tabs, orientation: 'inline', timeRange: scrollRange });
+
+    createImageAnimations(scrollTimeline);
+
+    // Create the chip animation.
+    createIndicatorAnimation(scrollTimeline);
+
   }
-  console.log('Loading animation worklet');
-  await CSS.animationWorklet.addModule('swipe-animator.js');
+  function createImageAnimations(scrollTimeline) {
+    const image_container = document.getElementById('images');
 
-  const tabs = document.getElementById('tabs');
-  const contents = document.getElementById('contents');
+    // FIXME: I am a layout noob!
+    // somehow the container size is the same size as one image
+    const width = (2 * 5) * image_container.clientWidth;
+    console.log(width, scrollTimeline.timeRange);
+    const container = new KeyframeEffect(
+      image_container,
+      { transform: ['translateX(0)', 'translateX(-' + width + 'px)'] },
+      { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
 
-  const scrollRange = tabs.scrollWidth - tabs.clientWidth;
-  const scrollTimeline = new ScrollTimeline({ scrollSource: tabs, orientation: 'inline', timeRange: scrollRange});
-
-  createImageAnimations(scrollTimeline);
-
-  // const tabItems= tabs.querySelectorAll('ul > li');
-  // const contentItems= contents.querySelectorAll('ul > li');
-  // for (let i = 0; i < tabItems.length; i++) {
-  //   // Create one animation per tab. Once we have group effect supporte
-  //   // we can have a single animation with a group effect for all tabs.
-  //   createTabAnimation(scrollTimeline, tabItems[i], contentItems[i]);
-  // }
-
-  // Create the chip animation.
-  createIndicatorAnimation(scrollTimeline);
-
-})();
-
-function createImageAnimations(scrollTimeline){
-  const image_container = document.getElementById('images');
-
-  // FIXME: I am a layout noob!
-  // somehow the container size is the same size as one image
-  const width = (2 * 5) * image_container.clientWidth;
-  const container = new KeyframeEffect(
-    image_container,
-    { transform: ['translateX(0)', 'translateX(-' + width + 'px)'] },
-    { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
+    new WorkletAnimation('passthrough', container, scrollTimeline).play();
   
-  new WorkletAnimation('passthrough', container, scrollTimeline).play();
-}
+    // TODO: Create scale and counter-scale animations for each image
+  }
 
-function createTabAnimation(scrollTimeline, tab, content) {
-  const effect = new KeyframeEffect(
-    content,
-    {
-      opacity: [1, 0],
-      transform: ['scale3d(1, 1, 1)', 'scale3d(0.9, 0.9, 1)']
-    },
-    { duration: 100, iterations: 1, fill: "both" });
-  // Pass offset left as an option but once we support start and end
-  // scroll offset in ScrollTimeline we can get rid of this.
-  const animation = new WorkletAnimation(
-    'material_tab_swipe',
-    effect,
-    scrollTimeline,
-    { offset: tab.offsetLeft, width: tab.clientWidth });
-  animation.play();
-}
+  function createTabAnimation(scrollTimeline, tab, content) {
+    const effect = new KeyframeEffect(content,
+      {
+        opacity: [1, 0],
+        transform: ['scale3d(1, 1, 1)', 'scale3d(0.9, 0.9, 1)']
+      },
+      { duration: 100, iterations: 1, fill: "both" });
+    // Pass offset left as an option but once we support start and end
+    // scroll offset in ScrollTimeline we can get rid of this.
+    const animation = new WorkletAnimation(
+      'material_tab_swipe', effect, scrollTimeline,
+      { offset: tab.offsetLeft, width: tab.clientWidth });
+    animation.play();
+  }
 
-function createIndicatorAnimation(scrollTimeline, scrollRange){
-  const chip_container = document.querySelector('#info #chips');
-  const indicator = document.querySelector('#indicator');
-  const width = chip_container.clientWidth - indicator.clientWidth;
-  const indicator_effect = new KeyframeEffect(
-    indicator,
-    { transform: ['translateX(0)', 'translateX(' + width + 'px)'] },
-    { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
-  const chip_animation = new WorkletAnimation(
-    'passthrough',
-    indicator_effect,
-    scrollTimeline);
-  chip_animation.play();
-}
+  function createIndicatorAnimation(scrollTimeline, scrollRange) {
+    const chip_container = document.querySelector('#info #chips');
+    const indicator = document.querySelector('#indicator');
+    const width = chip_container.clientWidth - indicator.clientWidth;
+    const indicator_effect = new KeyframeEffect(indicator,
+      { transform: ['translateX(0px)', 'translateX(' + width + 'px)'] },
+      { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
+    const chip_animation = new WorkletAnimation(
+      'passthrough', indicator_effect, scrollTimeline);
+    chip_animation.play();
+  }
 </script>
-</html>
 
+</html>
