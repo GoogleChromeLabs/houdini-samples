@@ -30,28 +30,33 @@ registerAnimator('icon_effect', class {
       this.width_ = options.width;
       this.play_when_favorited_ = options.play_when_favorited;
       this.favorited_ = false;
+
+      this.commitedFavoriteState_ = false;
   }
 
   animate(currentTime, effect) {
-      const scrollOffset = currentTime;
+      const scrollOffset = Math.round(currentTime);
       var delta = this.start_ - scrollOffset;
       const progress = delta / this.width_;
 
-
-      if (progress < 0) {
-        return; // only animate in swipe right direction
-      } else if (progress > 0 && progress < 1) {
-        //console.log(`${progress}`);
-      } else if (progress >= 1) {
-        this.favorited_ = true;
-      }
+      if (progress < 0)
+        return;
 
       if (!this.favorited_ && !this.play_when_favorited_) {
         // bug, at 1 we disable the animation!
-        effect.localTime = Math.min(progress, 0.999) * 100;
+        effect.localTime = Math.min(progress, 1) * 100;
       } else if (this.favorited_ && this.play_when_favorited_) {
         // play the transform animation
-        effect.localTime = Math.min(progress, 0.999) * 100;
+        effect.localTime = Math.min(progress, 1) * 100;
+      }
+
+      if (progress <= 0) {
+        this.commitedFavoriteState_ = this.favorited_;
+      } else if (progress > 0 && progress < 1) {
+        //console.log(`${progress}`);
+      } else if (progress > 1) {
+        // We are passed threshold, toggle the state
+        this.favorited_ = !this.commitedFavoriteState_;
       }
   }
 });

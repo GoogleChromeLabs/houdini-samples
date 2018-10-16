@@ -27,6 +27,8 @@ body, html {
   padding: 0;
   margin: 0;
   font-family:  Sans-Serif;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 
@@ -66,7 +68,7 @@ nav li a {
 
 }
 
-#info ul {
+ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -94,6 +96,7 @@ ul.horizontal li {
   height: 1.5em;
   position: absolute;
   opacity: 0.5;
+  margin-left: 3px;
 }
 
 #info #images {
@@ -126,7 +129,7 @@ ul.horizontal li {
 
 
 #info #tabs {
-  width: 100%;
+  width: 100vw;
   height: 50%;
 
   overflow-x: scroll;
@@ -149,7 +152,7 @@ ul.horizontal li {
   border: 1px solid var(--divider-color);
 
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 100%;
 
   scroll-snap-align: start;
@@ -164,20 +167,20 @@ ul.horizontal li {
 /* List Page*/
 #list .row_container {
   width: 100vw;
-  height: 20vh;
   position: relative;
 
 }
 #list .row_container  .icon {
   position: absolute;
   left: 20%;
-  top: 10%;
+  top: calc(50% - 12px);
 }
 
 .icon svg {
   transform: scale(0.5);
+  opacity: 0;
+  fill: red;
 }
-
 
 .icon .icon_bg {
   transform: scale(0.5);
@@ -199,17 +202,12 @@ ul.horizontal li {
 }
 
 
-.entry_container .entry{
+.entry_container .entry {
+  padding: 30px;
   width: 100vw;
-  height: 20vh;
+  height: 10vh;
   margin-left: 100vw;
   border: solid 1px black;
   background-color: var(--light-primary-color);
   scroll-snap-align: start;
-}
-
-
-
-* {
-  /* border: solid 1px red; */
 }
