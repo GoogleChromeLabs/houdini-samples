@@ -21,6 +21,10 @@
 --nav-height: 40px
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body, html {
   padding: 0;
   margin: 0;
@@ -76,21 +80,65 @@ nav li a {
   margin: 0;
 }
 
-ul.horizontal_scroller {
+ul.horizontal {
   white-space: nowrap;
 }
-ul.horizontal_scroller li {
+ul.horizontal li {
   display: inline-block;
 }
+
+#info #chips > ul {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 10px;
+  font-size: 1em;
+}
+
+#info #chips #indicator {
+  border-radius: 50%;
+  border: solid var(--divider-color) 1px;
+  border-width: 2px;
+  width: 1.5em;
+  height: 1.5em;
+  position: absolute;
+  opacity: 0.5;
+}
+
+#info #images {
+  height: 50%;
+  width: 100%;
+}
+
+#info #images #images_container {
+  height: 100%;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  will-change: transform;
+}
+
+#info #images .figure {
+  margin: 0;
+  min-width: 100%;
+  margin-right: 100%;
+}
+
+#info #images img {
+  object-fit: cover;
+  object-position: center center;
+  max-height: 100%;
+  width: 100%;
+}
+
 
 
 #info #contents > ul {
   position: relative;
 }
 
-
 #info #contents > ul > li {
-  box-sizing: border-box;
   font-size: 10em;
   background: var(--light-primary-color);
   border: 1px solid var(--divider-color);
@@ -105,8 +153,6 @@ ul.horizontal_scroller li {
 }
 
 #info #tabs {
-  box-sizing: border-box;
-
   width: 100%;
   height: 50%;
 
@@ -118,11 +164,11 @@ ul.horizontal_scroller li {
 #info #tabs > ul {
   position: relative;
   height: 100%;
+  margin: 0 -10px; /* cancel the first child padding */
 }
 
 #info #tabs > ul > li {
   font-size: 3em;
-  box-sizing: border-box;
   background: var(--default-primary-color);
   border-top-right-radius: 30px;
   border-top-left-radius: 30px;

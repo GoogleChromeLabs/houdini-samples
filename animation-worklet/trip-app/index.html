@@ -19,27 +19,64 @@
   </section>
 
   <section id="info">
-      <div id="contents">
-          <ul>
-              <li> 1
-              <li> 2
-              <li> 3
-              <li> 4
-              <li> 5
-              <li> 6
-          </ul>
-      </div>
-      <div id="tabs">
-        <ul class="horizontal_scroller">
-          <li> Swipe me!
-          <li> Swipe me!
-          <li> Swipe me!
-          <li> Swipe me!
-          <li> Swipe me!
-          <li> Swipe me!
+      <div id="chips">
+        <div id="indicator"></div>
+
+        <ul class="">
+          <li> 1
+          <li> 2
+          <li> 3
+          <li> 4
+          <li> 5
+          <li> 6
         </ul>
       </div>
+      <div id="images">
+        <div id="images_container">
+          <figure class="figure">
+            <img src="http://source.unsplash.com/JMYBetGDIKY">
+          </figure> 
+          <figure class="figure">
+            <img src="http://source.unsplash.com/AJgFLjnmSs4">
+          </figure>
+          <figure class="figure">
+            <img src="http://source.unsplash.com/JMYBetGDIKY">
+          </figure>
+          <figure class="figure">
+            <img src="http://source.unsplash.com/JMYBetGDIKY">
+          </figure>
+          <figure class="figure">
+            <img src="http://source.unsplash.com/AJgFLjnmSs4">
+          </figure>
+          <figure class="figure">
+            <img src="http://source.unsplash.com/JMYBetGDIKY">
+          </figure>
+          <figure class="figure">
+            <img src="http://source.unsplash.com/AJgFLjnmSs4">
+          </figure>
 
+        </div>
+      </div>
+      <div id="contents" style="display:none;">
+        <ul>
+            <li> 1
+            <li> 2
+            <li> 3
+            <li> 4
+            <li> 5
+            <li> 6
+        </ul>
+      </div>
+      <div id="tabs">
+        <ul class="horizontal">
+          <li> Brazil
+          <li> Mexico
+          <li> Canada
+          <li> United States
+          <li> Costa Rica
+          <li> Argentina
+        </ul>
+      </div>
   </section>
 
 </body>
@@ -61,7 +98,7 @@
       return;
     // hide all except the page of interest
     document.body.querySelectorAll('section').forEach(s => {s.style.display = 'none';});
-    page.style.display = 'block';
+    page.style.display = '';
   }
   gotoPage();
   window.addEventListener('hashchange', gotoPage);
@@ -80,34 +117,70 @@
   const tabs = document.getElementById('tabs');
   const contents = document.getElementById('contents');
 
-  tabs.scrollTo(0,0); // force snap on load
-
   const scrollRange = tabs.scrollWidth - tabs.clientWidth;
   const scrollTimeline = new ScrollTimeline({ scrollSource: tabs, orientation: 'inline', timeRange: scrollRange});
 
-  const tabItems= tabs.querySelectorAll('ul > li');
-  const contentItems= contents.querySelectorAll('ul > li');
+  createImageAnimations(scrollTimeline);
 
+  // const tabItems= tabs.querySelectorAll('ul > li');
+  // const contentItems= contents.querySelectorAll('ul > li');
+  // for (let i = 0; i < tabItems.length; i++) {
+  //   // Create one animation per tab. Once we have group effect supporte
+  //   // we can have a single animation with a group effect for all tabs.
+  //   createTabAnimation(scrollTimeline, tabItems[i], contentItems[i]);
+  // }
 
-  for (let i = 0; i < tabItems.length; i++) {
-    const tab = tabItems[i];
-    const content = contentItems[i]
-    // Create one animation per tab. Once we have group effect supporte
-    // we can have a single animation with a group effect for all tabs.
-    const effect = new KeyframeEffect(
-        content,
-        [{opacity: 1, transform: 'scale3d(1, 1, 1)'}, {opacity: 0, transform: 'scale3d(0.9, 0.9, 1)'}],
-        { duration: 100, iterations: Infinity , fill: "both"});
-    // Pass offset left as an option but once we support start and end
-    // scroll offset in ScrollTimeline we can get rid of this.
-    const animation = new WorkletAnimation(
-        'material_tab_swipe',
-        effect,
-        scrollTimeline,
-        {offset: tab.offsetLeft, width: tab.clientWidth});
-    animation.play();
-  }
+  // Create the chip animation.
+  createIndicatorAnimation(scrollTimeline);
+
 })();
+
+function createImageAnimations(scrollTimeline){
+  const image_container = document.getElementById('images');
+
+  // FIXME: I am a layout noob!
+  // somehow the container size is the same size as one image
+  const width = (2 * 5) * image_container.clientWidth;
+  const container = new KeyframeEffect(
+    image_container,
+    { transform: ['translateX(0)', 'translateX(-' + width + 'px)'] },
+    { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
+  
+  new WorkletAnimation('passthrough', container, scrollTimeline).play();
+}
+
+function createTabAnimation(scrollTimeline, tab, content) {
+  const effect = new KeyframeEffect(
+    content,
+    {
+      opacity: [1, 0],
+      transform: ['scale3d(1, 1, 1)', 'scale3d(0.9, 0.9, 1)']
+    },
+    { duration: 100, iterations: 1, fill: "both" });
+  // Pass offset left as an option but once we support start and end
+  // scroll offset in ScrollTimeline we can get rid of this.
+  const animation = new WorkletAnimation(
+    'material_tab_swipe',
+    effect,
+    scrollTimeline,
+    { offset: tab.offsetLeft, width: tab.clientWidth });
+  animation.play();
+}
+
+function createIndicatorAnimation(scrollTimeline, scrollRange){
+  const chip_container = document.querySelector('#info #chips');
+  const indicator = document.querySelector('#indicator');
+  const width = chip_container.clientWidth - indicator.clientWidth;
+  const indicator_effect = new KeyframeEffect(
+    indicator,
+    { transform: ['translateX(0)', 'translateX(' + width + 'px)'] },
+    { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
+  const chip_animation = new WorkletAnimation(
+    'passthrough',
+    indicator_effect,
+    scrollTimeline);
+  chip_animation.play();
+}
 </script>
 </html>
 

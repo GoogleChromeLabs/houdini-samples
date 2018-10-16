@@ -11,7 +11,13 @@ registerAnimator('material_tab_swipe', class {
       const progress = Math.min(delta / this.width_, 0.999);
       // if (progress > 0 && progress < 1)
       //     console.log(`Article active at ${scrollOffset} with (${this.offset_}, ${this.width_}) => ${progress}`);
-
       effect.localTime = progress * 100;
   }
-})
+});
+
+
+registerAnimator('passthrough', class {
+    animate(currentTime, effect) {
+        effect.localTime = currentTime;
+    }
+});
