@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<style type="text/css">
+  .spinner-painter {
+    animation: spinner-rotation 1.2s linear infinite;
+    background: paint(spinner-painter);
+    display: inline-block;
+    height: 64px;
+    width: 64px;
+  }
+  @keyframes spinner-rotation {
+    0% {
+      --spinner-angle-degrees: 0;
+    }
+    100% {
+      --spinner-angle-degrees: 360;
+    }
+  }
+
+  .ring-painter {
+    animation:
+      comet-head 1.2s cubic-bezier(0.5, 0, 0.5, 1) -0.45s infinite,
+      comet-tail 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    background: paint(ring-painter);
+    display: inline-block;
+    height: 64px;
+    width: 64px;
+  }
+  @keyframes comet-head {
+    0% {
+      --comet-head-degrees: -45;
+    }
+    100% {
+      --comet-head-degrees: 315;
+    }
+  }
+  @keyframes comet-tail {
+    0% {
+      --comet-tail-degrees: -135;
+    }
+    100% {
+      --comet-tail-degrees: 225;
+    }
+  }
+
+  .roller-painter {
+    animation: roller 1.2s linear infinite;
+    background: paint(roller-painter);
+    display: inline-block;
+    height: 64px;
+    width: 64px;
+  }
+  @keyframes roller {
+    0% {
+      --parametric-value: 0;
+    }
+    100% {
+      --parametric-value: 1;
+    }
+  }
+
+  .ripple-painter {
+    animation: ripple 1s linear infinite;
+    background: paint(ripple-painter);
+    display: inline-block;
+    height: 64px;
+    width: 64px;
+  }
+  @keyframes ripple {
+    0% {
+      --ripple: 0;
+    }
+    100% {
+      --ripple: 1;
+    }
+  }
+
+</style>
+<body>
+  <div class="spinner-painter"></div>
+  <div class="ring-painter"></div>
+  <div class="roller-painter"></div>
+  <div class="ripple-painter"></div>
+  <script>
+    CSS.registerProperty({
+      name: '--spinner-angle-degrees',
+      syntax: '<number>',
+      inherits: false,
+      initialValue: '0'
+    });
+    CSS.registerProperty({
+      name: '--comet-head-degrees',
+      syntax: '<number>',
+      inherits: false,
+      initialValue: '0'
+    });
+    CSS.registerProperty({
+      name: '--comet-tail-degrees',
+      syntax: '<number>',
+      inherits: false,
+      initialValue: '0'
+    });
+    CSS.registerProperty({
+      name: '--parametric-value',
+      syntax: '<number>',
+      inherits: false,
+      initialValue: '0'
+    });
+    CSS.registerProperty({
+      name: '--ripple',
+      syntax: '<number>',
+      inherits: false,
+      initialValue: '0'
+    });
+    CSS.paintWorklet.addModule('spinner-painter.js');
+    CSS.paintWorklet.addModule('ring-painter.js');
+    CSS.paintWorklet.addModule('roller-painter.js');
+    CSS.paintWorklet.addModule('ripple-painter.js');
+  </script>
+</body>
+</html>
