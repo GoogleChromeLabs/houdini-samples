@@ -111,7 +111,8 @@ function createImageAnimations(scrollTimeline, offsets, width) {
         { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
 
     new WorkletAnimation('passthrough', parallex_effect, scrollTimeline).play();
-    
+
+
     const figures = image_container.querySelectorAll('figure');
     for (let i = 0; i < figures.length; i++) {
         const figure = figures[i];

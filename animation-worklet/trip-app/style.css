@@ -105,8 +105,6 @@ ul.horizontal li {
 }
 
 #info #images #images_container {
-  height: 100%;
-
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
