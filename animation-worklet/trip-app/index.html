@@ -151,6 +151,9 @@
 
 </body>
 
+
+<script src="app.js"></script>
+
 <script>
   // redirect to https since AnimationWorklet is only availably in secure contexts.
   if (location.hostname != 'localhost' && location.protocol != 'https:') {
@@ -176,148 +179,17 @@
   }
   window.addEventListener('hashchange', gotoPage);
 
-
-  // Load Animations
+  // Load worklet and goto the page.
   (async function () {
     if (!CSS.animationWorklet) {
       console.warn('Missing CSS.animationWorklet. To enable scroll effect please load in HTTPS and enable flag chrome://flags/#enable-experimental-web-platform-features');
       document.body.innerHTML = 'Missing <tt>CSS.animationWorklet</tt>. <br/> To enable demo please enable Chrome flag chrome://flags/#enable-experimental-web-platform-features and load on HTTPS'
       return;
     }
-    console.log('Loading animation worklet');
-    await CSS.animationWorklet.addModule('swipe-animator.js');
+    console.log('Loading animation worklet...');
+    await CSS.animationWorklet.addModule('app-animator.js');
     gotoPage();
-
   })();
-
-  function loadListPageAnimations() {
-    const list = document.getElementById('list');
-    const rows = list.querySelectorAll('.row_container');
-    for (let i = 0; i < rows.length; i++) {
-      createRowAnimations(rows[i]);
-    }
-
-  }
-
-  function createRowAnimations(row_container) {
-    const row = row_container.querySelector('.row');
-    const icon = row_container.querySelector('.icon');
-    const entry = row.querySelector('.entry');
-    // scroll a little bit to trigger initial snapping
-    row.scrollTo(1, 0);
-
-    const scrollRange = row.scrollWidth - row.clientWidth;
-    const scrollTimeline = new ScrollTimeline({ scrollSource: row, orientation: 'inline', timeRange: scrollRange });
-
-    const iconLeft = icon.offsetLeft;
-    const iconTop = icon.offsetTop;
-
-    const threshold = entry.clientWidth * 0.4;
-    const options = {
-      start: entry.offsetLeft,
-      width: threshold,
-    };
-
-    const scale_effect = new KeyframeEffect(
-      icon.querySelector('svg'),
-      {
-        transform: ['scale(0.5)', 'scale(1)'],
-        opacity: [0, 1]
-      },
-      { duration: 50, delay: 50, iterations: 1, fill: 'both', easing: 'linear' });
-
-    const scale_options = {
-      ...options,
-      play_when_favorited: false,
-    };
-
-    const background_scale_effect = new KeyframeEffect(
-      row_container.querySelector('.bg'),
-      {
-        transform: ['scale(0.5)', 'scale(40)'],
-        opacity: [0, 1]
-      },
-      { duration: 70, delay: 30, iterations: 1, fill: 'both', easing: 'linear' });
-
-    const background_scale_options = {
-      ...options,
-      play_when_favorited: false,
-    };
-
-    const transform_effect = new KeyframeEffect(
-      icon,
-      {
-        transform: [`translate(-${iconLeft}px, -${iconTop}px) scale(1)`, 'translate(0,0) scale(1)'],
-      },
-      { duration: 100, iterations: 1, easing: 'linear' });
-
-    const transform_options = {
-      ...options,
-      play_when_favorited: true,
-    };
-
-    new WorkletAnimation('icon_effect', scale_effect, scrollTimeline, scale_options).play();
-    new WorkletAnimation('icon_effect', background_scale_effect, scrollTimeline, background_scale_options).play();
-    new WorkletAnimation('icon_effect', transform_effect, scrollTimeline, transform_options).play();
-
-  }
-
-  function loadInfoPageAnimations() {
-
-    const tabs = document.getElementById('tabs');
-    const scrollRange = tabs.scrollWidth - tabs.clientWidth;
-    const scrollTimeline = new ScrollTimeline({
-      scrollSource: tabs, orientation: 'inline',
-      timeRange: scrollRange
-    });
-
-    createImageAnimations(scrollTimeline);
-    createIndicatorAnimation(scrollTimeline);
-
-  }
-  function createImageAnimations(scrollTimeline) {
-    const image_container = document.getElementById('images');
-
-    // FIXME: I am a layout noob!
-    // somehow the container size is the same size as one image
-    const width = (2 * 5) * image_container.clientWidth;
-    const container = new KeyframeEffect(
-      image_container,
-      { transform: ['translateX(0)', 'translateX(-' + width + 'px)'] },
-      { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
-
-    new WorkletAnimation('passthrough', container, scrollTimeline).play();
-
-    // TODO: Create scale and counter-scale animations for each image
-  }
-
-  function createTabAnimation(scrollTimeline, tab, content) {
-    const effect = new KeyframeEffect(content,
-      {
-        opacity: [1, 0],
-        transform: ['scale3d(1, 1, 1)', 'scale3d(0.9, 0.9, 1)']
-      },
-      { duration: 100, iterations: 1, fill: "both" });
-    // Pass offset left as an option but once we support start and end
-    // scroll offset in ScrollTimeline we can get rid of this.
-    const animation = new WorkletAnimation(
-      'material_tab_swipe', effect, scrollTimeline,
-      { offset: tab.offsetLeft, width: tab.clientWidth });
-    animation.play();
-  }
-
-  function createIndicatorAnimation(scrollTimeline, scrollRange) {
-    const chip_container = document.querySelector('#info #chips');
-    const chips = chip_container.querySelectorAll('li');
-    const indicator = document.querySelector('#indicator');
-    const width = chips[chips.length - 1].offsetLeft - chips[0].offsetLeft;
-    const indicator_effect = new KeyframeEffect(indicator,
-      { transform: ['translateX(0px)', 'translateX(' + width + 'px)'] },
-      { duration: scrollTimeline.timeRange, iterations: 1, fill: "both" });
-    const chip_animation = new WorkletAnimation(
-      'passthrough', indicator_effect, scrollTimeline);
-    chip_animation.play();
-  }
 </script>
 
 </html>
