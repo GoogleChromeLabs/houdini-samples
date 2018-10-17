@@ -1,17 +1,28 @@
-registerAnimator('material_tab_swipe', class {
-  constructor(options) {
+registerAnimator('image_reveal', class {
+  constructor(options = {start:0, width:100, inverse: false}) {
       console.log(options);
-      this.offset_ = options.offset;
+      this.start_  = options.start;
       this.width_ = options.width;
+      this.inverse_ = options.inverse;
   }
   animate(currentTime, effect) {
+      if (isNaN(currentTime))
+        return;
+
       const scrollOffset = currentTime;
-      var delta = Math.abs(scrollOffset - this.offset_);
-      // bug, at 1 we disable the animation!
-      const progress = Math.min(delta / this.width_, 0.999);
+      var progress = (this.start_ - scrollOffset) / this.width_;
+      progress = clamp(1 - progress, 0, 1);
+      var t;
+      if (this.inverse_) {
+        let currentScale = 0.5 + (0.5) * progress;
+        let inverseScale = 1 / currentScale; 
+        t = inverseScale - 1;            
+      } else {
+        t = progress * 100;
+      }
       // if (progress > 0 && progress < 1)
       //     console.log(`Article active at ${scrollOffset} with (${this.offset_}, ${this.width_}) => ${progress}`);
-      effect.localTime = progress * 100;
+      effect.localTime = t;
   }
 });
 
@@ -21,7 +32,6 @@ registerAnimator('passthrough', class {
         effect.localTime = currentTime;
     }
 });
-
 
 registerAnimator('icon_effect', class {
   constructor(options) {
@@ -33,7 +43,6 @@ registerAnimator('icon_effect', class {
 
       this.commitedFavoriteState_ = false;
   }
-
 
   animate(currentTime, effect) {
       if (isNaN(currentTime))
@@ -59,7 +68,6 @@ registerAnimator('icon_effect', class {
       }
   }
 });
-
 
 function clamp(value, min, max) {
   return Math.max(Math.min(value, max), min);

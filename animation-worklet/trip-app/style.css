@@ -118,6 +118,9 @@ ul.horizontal li {
   margin: 0;
   min-width: 100%;
   margin-right: 100%;
+
+  overflow: hidden;
+  transform: scale(0.5);
 }
 
 #info #images img {
@@ -127,7 +130,6 @@ ul.horizontal li {
   width: 100%;
 }
 
-
 #info #tabs {
   width: 100vw;
   height: 50%;
@@ -135,7 +137,6 @@ ul.horizontal li {
   overflow-x: scroll;
   scroll-snap-type: x mandatory;
 }
-
 
 #info #tabs > ul {
   position: relative;
@@ -214,5 +215,6 @@ ul.horizontal li {
   margin-left: 100vw;
   border: solid 1px black;
   background-color: var(--light-primary-color);
+
   scroll-snap-align: start;
 }
