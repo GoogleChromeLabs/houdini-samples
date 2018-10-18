@@ -166,6 +166,7 @@ ul.horizontal li {
 /* List Page*/
 #list .row_container {
   width: 100vw;
+  height: 10vh;
   position: relative;
   /* prevent background to escape */
   overflow: hidden;
@@ -209,7 +210,7 @@ ul.horizontal li {
 .entry_container .entry {
   padding: 30px;
   width: 100vw;
-  height: 10vh;
+  height: calc(10vh + 10px); /* add 15px to hide scrollbars :| */
   margin-left: 100vw;
   border: solid 1px black;
   background-color: var(--light-primary-color);
