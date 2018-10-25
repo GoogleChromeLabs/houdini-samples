@@ -1,0 +1,219 @@
+:root {
+
+/* backgrounds */
+
+--default-primary-color: #03A9F4;
+--light-primary-color  : #B3E5FC;
+--dark-primary-color   : #0288D1;
+
+--accent-color         : #CDDC39;
+
+/* text */
+--text-primary-color   : #FFFFFF;
+
+--primary-text-color   : #212121;
+--secondary-text-color : #757575;
+
+/* border */
+--divider-color        : #BDBDBD;
+--nav-height: 40px
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  padding: 0;
+  margin: 0;
+  font-family:  Sans-Serif;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+
+/* Navigation */
+nav {
+  padding: 0;
+}
+nav ul {
+  list-style: none;
+  background-color: var(--dark-primary-color);
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+nav li {
+  font-size: 1.2em;
+  line-height: 40px;
+  height: var(--nav-height);
+  border-bottom: 1px solid var(--divider-color);
+}
+nav li a {
+  text-decoration: none;
+  color:var(--text-primary-color);
+}
+
+
+/* Info Page */
+
+#info {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 1px - var(--nav-height));
+
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.horizontal {
+  white-space: nowrap;
+}
+ul.horizontal li {
+  display: inline-block;
+}
+
+#info #chips > ul {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 10px;
+  font-size: 1em;
+}
+
+#info #chips #indicator {
+  border-radius: 50%;
+  border: solid var(--divider-color) 1px;
+  border-width: 2px;
+  width: 1.5em;
+  height: 1.5em;
+  position: absolute;
+  opacity: 0.5;
+  margin-left: 3px;
+}
+
+#info #images {
+  height: 50%;
+  width: 100%;
+}
+
+#info #images #images_container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  will-change: transform;
+}
+
+#info #images .figure {
+  margin: 0;
+  min-width: 100%;
+  margin-right: 100%;
+
+  overflow: hidden;
+  transform: scale(0.5);
+}
+
+#info #images img {
+  object-fit: cover;
+  object-position: center center;
+  max-height: 100%;
+  width: 100%;
+}
+
+#info #tabs {
+  width: 100vw;
+  height: 50%;
+
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+}
+
+#info #tabs > ul {
+  position: relative;
+  height: 100%;
+  margin: 0 -10vw; /* cancel the first child padding */
+}
+
+#info #tabs > ul > li {
+  font-size: 3em;
+  background: var(--default-primary-color);
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
+  margin: 0 10vw;
+  border: 1px solid var(--divider-color);
+
+  position: relative;
+  width: 100vw;
+  height: 100%;
+
+  scroll-snap-align: start;
+
+  will-change: transform, opacity;
+
+}
+#info #tabs p {
+  padding: 10px;
+}
+
+/* List Page*/
+#list .row_container {
+  width: 100vw;
+  height: 10vh;
+  position: relative;
+  /* prevent background to escape */
+  overflow: hidden;
+
+}
+#list .row_container  .icon {
+  position: absolute;
+  left: 20%;
+  top: calc(50% - 12px);
+}
+
+.icon svg {
+  transform: scale(0.5);
+  opacity: 0;
+  fill: red;
+}
+
+.row_container .bg {
+  transform: scale(0.5);
+  background-color: yellow;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+#list .row_container .row {
+   overflow-x: scroll;
+   overflow-y: hidden;
+   scroll-snap-type: x mandatory;
+   white-space: nowrap;
+}
+
+.row  .entry_container {
+  width: 300vw;
+}
+
+.entry_container .entry {
+  padding: 30px;
+  width: 100vw;
+  height: calc(10vh + 10px); /* add 15px to hide scrollbars :| */
+  margin-left: 100vw;
+  border: solid 1px black;
+  background-color: var(--light-primary-color);
+
+  scroll-snap-align: start;
+}
