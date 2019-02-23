@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+  <title>CSS Houdini tooltips</title>
+  <style>
+    body {
+      padding: 5em;
+      background: #ddd;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+    p {
+      margin: 2em 0;
+    }
+
+    .tooltip-1 {
+      background-image: paint(tooltip);
+      padding: .5em .5em .5em 1em;
+    }
+    .tooltip-2 {
+      background-image: paint(tooltip);
+      padding: calc(var(--triangle-size) * 1px + .5em) 1em 1em;
+      --round-radius: 0;
+      --background-color: #4d7990;
+      --triangle-size: 20;
+      --position: 20;
+      --direction: top;
+      --border-color: #333;
+      --border-width: 2;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <span class="tooltip-1">I'm a default tooltip!</span>
+  <span class="tooltip-2">I'm a customized tooltip!</span>
+  <script>
+    CSS.paintWorklet.addModule('paintworklet.js');
+  </script>
+</body>
