@@ -37,7 +37,8 @@
     CSS.registerProperty({
       name: '--animated-color',
       syntax: '<color>',
-        initialValue: 'black'
+      initialValue: 'black',
+      inherits: false
     });
   } else {
     document.body.innerHTML = 'You need support for <a href="https://drafts.css-houdini.org/css-properties-values-api/">CSS Properties and Values</a> to view this demo :(';
