@@ -1,71 +1,63 @@
 registerAnimator('image_reveal', class {
-  constructor(options = {start:0, width:100, inverse: false}) {
-      console.log(options);
-      this.start_  = options.start;
-      this.width_ = options.width;
-      this.inverse_ = options.inverse;
+  constructor(options) {
+      this.options = options || {start:0, width:100, inverse: false};
   }
   animate(currentTime, effect) {
       if (isNaN(currentTime))
         return;
 
       const scrollOffset = currentTime;
-      var progress = (this.start_ - scrollOffset) / this.width_;
+      var progress = (this.options.start - scrollOffset) / this.options.width;
       progress = clamp(1 - progress, 0, 1);
       var t;
-      if (this.inverse_) {
+      if (this.options.inverse) {
         let currentScale = 0.5 + (0.5) * progress;
-        let inverseScale = 1 / currentScale; 
-        t = inverseScale - 1;            
+        let inverseScale = 1 / currentScale;
+        t = inverseScale - 1;
       } else {
         t = progress * 100;
       }
-      // if (progress > 0 && progress < 1)
-      //     console.log(`Article active at ${scrollOffset} with (${this.offset_}, ${this.width_}) => ${progress}`);
       effect.localTime = t;
   }
 });
 
-
 registerAnimator('passthrough', class {
-    animate(currentTime, effect) {
-        effect.localTime = currentTime;
-    }
+  animate(currentTime, effect) {
+    effect.localTime = currentTime;
+  }
 });
 
 registerAnimator('icon_effect', class {
-  constructor(options) {
-      console.log(options);
-      this.start_ = options.start;
-      this.width_ = options.width;
-      this.play_when_favorited_ = options.play_when_favorited;
-      this.favorited_ = false;
-
-      this.commitedFavoriteState_ = false;
+  constructor(options, state) {
+    this.options = options;
+    this.state = state || {commitedFavorited: false, favorited: false};
   }
 
   animate(currentTime, effect) {
-      if (isNaN(currentTime))
-        return;
-      const scrollOffset = Math.round(currentTime);
-      var delta = this.start_ - scrollOffset;
-      const progress = delta / this.width_;
+    if (isNaN(currentTime))
+      return;
+    const scrollOffset = Math.round(currentTime);
+    var delta = this.options.start - scrollOffset;
+    const progress = delta / this.options.width;
 
-      if (!this.favorited_ && !this.play_when_favorited_) {
-        // play the scale animation
-        effect.localTime = clamp(progress, 0,  1) * 100;
-      } else if (this.favorited_ && this.play_when_favorited_) {
-        // play the transform animation
-        effect.localTime = clamp(progress, 0,  1) * 100;
-      }
+    // We play only when our state
+    const shouldPlay = (this.state.favorited == this.options.play_when_favorited);
 
-      if (isNear(progress, 0) || progress < 0) {
-        // Back to 0, commit the new state
-        this.commitedFavoriteState_ = this.favorited_;
-      } else if (isNear(progress, 1) || progress > 1 ) {
-        // Passed threshold, toggle the state
-        this.favorited_ = !this.commitedFavoriteState_;
-      }
+    if (shouldPlay)
+      effect.localTime = clamp(progress, 0,  1) * 100;
+
+    // We commit the states when at 0 and toggle it when at 1.
+    if (isNear(progress, 0) || progress < 0) {
+      this.state.commitedFavorited = this.state.favorited;
+    } else if (isNear(progress, 1) || progress > 1 ) {
+      this.state.favorited = !this.state.commitedFavorited;
+    }
+  }
+
+  // This is a stateful animator. In particular favorited and commited favorited
+  // change as we pass the threshold.
+  state() {
+    return this.state;
   }
 });
 
