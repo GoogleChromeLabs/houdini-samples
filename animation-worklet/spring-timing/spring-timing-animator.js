@@ -24,16 +24,12 @@ registerAnimator('spring', class SpringAnimator {
       };
     }
 
-    this.options_ = options
-    console.log('Initializing spring animation with ', this.options_);
+    this.options_ = options;
+    // initialize the simulation.
+    this.springTiming_ =  this.spring(this.options_.k, this.options_.ratio);
   }
 
   animate(currentTime, effect) {
-    if (!this.springTiming_)  {
-      // initialize the simulation.
-      this.springTiming_ =  this.spring(this.options_.k, this.options_.ratio);
-    }
-
     // TODO(majidvp): stop computing a new value once we are within a certain
     // threshold of the target.
     const dt_seconds = currentTime / 1000;
