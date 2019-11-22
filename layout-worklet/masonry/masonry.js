@@ -15,8 +15,8 @@ registerLayout('masonry', class {
     return [ '--padding', '--columns' ];
   }
 
-  *intrinsicSizes() { /* TODO implement :) */ }
-  *layout(children, edges, constraints, styleMap) {
+  async intrinsicSizes() { /* TODO implement :) */ }
+  async layout(children, edges, constraints, styleMap) {
     const inlineSize = constraints.fixedInlineSize;
 
     const padding = parseInt(styleMap.get('--padding').toString());
@@ -30,9 +30,9 @@ registerLayout('masonry', class {
 
     // Layout all children with simply their column size.
     const childInlineSize = (inlineSize - ((columns + 1) * padding)) / columns;
-    const childFragments = yield children.map((child) => {
+    const childFragments = await Promise.all(children.map((child) => {
       return child.layoutNextFragment({fixedInlineSize: childInlineSize});
-    });
+    }));
 
     let autoBlockSize = 0;
     const columnOffsets = Array(columns).fill(0);

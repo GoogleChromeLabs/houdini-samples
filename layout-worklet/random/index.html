@@ -39,12 +39,12 @@ div {
 <script language="javascript+layout">
   registerLayout("random", class {
     // currently: all children are blockified
-    *intrinsicSizes() {}
-    *layout(children, edges, constraintSpace, styles) {
+    async intrinsicSizes() {}
+    async layout(children, edges, constraintSpace, styles) {
       const childFragments = []
       console.log(constraintSpace);
       for(const child of children) {
-        const childFragment = yield child.layoutNextFragment();
+        const childFragment = await child.layoutNextFragment();
         console.log(childFragment);
         childFragment.inlineOffset = Math.random() * constraintSpace.fixedInlineSize;
         childFragment.blockOffset = Math.random() * constraintSpace.fixedBlockSize;
