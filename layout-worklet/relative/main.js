@@ -1,7 +1,7 @@
 import {
   html,
   render
-} from "https://unpkg.com/lit-html/lib/lit-extended.js?module";
+} from "https://unpkg.com/lit-html@1.1.2/lit-html.js?module";
 
 if (location.protocol === "http:" && location.hostname !== "localhost") {
   location.protocol = "https:";

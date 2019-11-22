@@ -54,8 +54,8 @@ div:nth-of-type(4):hover {
   registerLayout("blocklike", class {
     static get childInputProperties() { return ['margin-left', 'margin-right', 'margin-top', 'margin-bottom'];}
     // currently: all children are blockified
-    *intrinsicSizes() {}
-    *layout(children, edges, constraintSpace, styles) {
+    async intrinsicSizes() {}
+    async layout(children, edges, constraintSpace, styles) {
       const childFragments = [];
       let inlineOffset = 0;
       let blockOffset = 0;
@@ -65,7 +65,7 @@ div:nth-of-type(4):hover {
 
       for(let i = 0; i < children.length; i++) {
         let child = children[i];
-        let childFragment = yield child.layoutNextFragment({
+        let childFragment = await child.layoutNextFragment({
           availableInlineSize
         });
         const leftMargin = child.styleMap.get('margin-left').value;
@@ -87,7 +87,7 @@ div:nth-of-type(4):hover {
         } else if(childInlineSize > availableInlineSize && isRepeatAttempt) {
           // If the second attempt failed as well, the child is wider than the
           // there’s room. In that case, force it to be laid out at max width.
-          childFragment = yield child.layoutNextFragment({
+          childFragment = await child.layoutNextFragment({
             fixedInlineSize: availableInlineSize - leftMargin - rightMargin
           });
         }

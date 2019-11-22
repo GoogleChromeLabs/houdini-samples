@@ -237,19 +237,19 @@ function applyVerticalRules(
 }
 
 // Measures the child in the *inline* direction.
-function* measureChildHorizontal(child, position) {
+async function measureChildHorizontal(child, position) {
   let childInlineSize = 0;
   if (position.left >= 0 && position.right >= 0) {
     childInlineSize = Math.max(0, position.right - position.left);
   } else {
-    childInlineSize = (yield child.layoutNextFragment({})).inlineSize;
+    childInlineSize = (await child.layoutNextFragment({})).inlineSize;
   }
 
   return childInlineSize;
 }
 
 // Measures the child in the *block* direction.
-function* measureChild(child, position) {
+async function measureChild(child, position) {
   const childConstraints = {};
 
   if (position.top >= 0 && position.bottom >= 0)
@@ -264,7 +264,7 @@ function* measureChild(child, position) {
       position.right - position.left
     );
 
-  return yield child.layoutNextFragment(childConstraints);
+  return await child.layoutNextFragment(childConstraints);
 }
 
 // Positions a child in the *inline* direction.
@@ -326,9 +326,9 @@ registerLayout(
       return ["--relative-name"];
     }
 
-    *intrinsicSizes() {}
+    async intrinsicSizes() {}
 
-    *layout(children, edges, constraints, styleMap) {
+    async layout(children, edges, constraints, styleMap) {
       const relativeConstraints = parseRelativeConstraints(
         styleMap.get("--relative-constraints").toString(),
         constraints.fixedInlineSize
@@ -364,7 +364,7 @@ registerLayout(
           childName,
           constraints.fixedInlineSize
         );
-        const childInlineSize = yield* measureChildHorizontal(
+        const childInlineSize = await measureChildHorizontal(
           childrenMap[childName],
           childPositions[childName]
         );
@@ -384,7 +384,7 @@ registerLayout(
           childName,
           constraints.fixedBlockSize
         );
-        const fragment = yield* measureChild(
+        const fragment = await measureChild(
           childrenMap[childName],
           childPositions[childName]
         );
@@ -403,7 +403,7 @@ registerLayout(
         const childName = children[i].name;
         const fragment = childName
           ? childFragmentMap[childName]
-          : yield children[i].layoutNextFragment({});
+          : await children[i].layoutNextFragment({});
         childFragments.push(fragment);
 
         if (childName) {
