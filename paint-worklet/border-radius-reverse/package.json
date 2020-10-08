@@ -1,0 +1,12 @@
+{
+  "name": "@houdini-modules/border-radius-reverse",
+  "description": "Paint worklet for an inverted border radius",
+  "version": "0.0.1",
+  "private": false,
+  "main": "border-radius-reverse.js",
+  "author": "Surma <surma@surma.dev>",
+  "license": "Apache-2.0",
+  "files": [
+	  "border-radius-reverse.js"
+  ]
+}
