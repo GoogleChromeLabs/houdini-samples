@@ -69,7 +69,7 @@ function updateRelativeStyle(constraints) {
 }
 
 const selectTmpl = (items, selected, disabled) => html`
-  <select disabled="${disabled}">
+  <select ?disabled="${disabled}">
     ${items.map(
       item =>
         html`${
